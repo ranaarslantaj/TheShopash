@@ -1,51 +1,11 @@
 import React from 'react';
 import ProductCard from '@/components/product/ProductCard';
 import Link from 'next/link';
-
-const MOCK_PRODUCTS = [
-  {
-    id: '1',
-    title: 'Royal Oak Skeleton',
-    pricePKR: 1250000,
-    priceUSD: 4500,
-    description: 'A masterpiece of horological engineering, featuring a hand-finished skeleton movement and the iconic octagonal bezel.',
-    images: ['https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?q=80&w=1974&auto=format&fit=crop'],
-    category: 'Watches',
-    stock: 5
-  },
-  {
-    id: '2',
-    title: 'Seamaster Heritage',
-    pricePKR: 850000,
-    priceUSD: 3100,
-    description: 'Tribute to the classic diving watches of the 1960s, combining vintage aesthetics with modern ceramic materials.',
-    images: ['https://images.unsplash.com/photo-16191341775cf3-68fabb003180?q=80&w=2070&auto=format&fit=crop'],
-    category: 'Watches',
-    stock: 3
-  },
-  {
-    id: '3',
-    title: 'Day-Date Platinum',
-    pricePKR: 3500000,
-    priceUSD: 12500,
-    description: 'The ultimate prestige watch, crafted from solid 950 platinum with the legendary ice-blue dial.',
-    images: ['https://images.unsplash.com/photo-1587836374828-4dbaba94cf0e?q=80&w=2070&auto=format&fit=crop'],
-    category: 'Watches',
-    stock: 2
-  },
-  {
-    id: '4',
-    title: 'Nautilus Gold',
-    pricePKR: 4200000,
-    priceUSD: 15120,
-    description: 'Elegant sports watch in 18k rose gold with a sunburst brown dial and horizontal embossing.',
-    images: ['https://images.unsplash.com/photo-1612817288484-6f916006741a?q=80&w=2070&auto=format&fit=crop'],
-    category: 'Watches',
-    stock: 1
-  }
-];
+import { MOCK_PRODUCTS } from '@/lib/products';
 
 const FeaturedProducts = () => {
+  const featured = MOCK_PRODUCTS.slice(0, 4);
+
   return (
     <section className="py-32 bg-black">
       <div className="container mx-auto px-6">
@@ -58,9 +18,8 @@ const FeaturedProducts = () => {
             View All Products
           </Link>
         </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {MOCK_PRODUCTS.map((product) => (
+          {featured.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>
