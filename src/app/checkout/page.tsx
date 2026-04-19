@@ -5,23 +5,46 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { useCart } from '@/context/CartContext';
 import { formatPrice } from '@/lib/utils';
-import { CheckCircle } from 'lucide-react';
+import { createOrder } from '@/lib/db';
+import { CheckCircle, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function CheckoutPage() {
   const { cart, totalPricePKR, totalPriceUSD, clearCart } = useCart();
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ name: '', phone: '', address: '', country: 'Pakistan', payment: 'cod' });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In production, save to Firestore here
-    setSubmitted(true);
-    clearCart();
+    setLoading(true);
+    try {
+      await createOrder({
+        customerName: form.name,
+        phone: form.phone,
+        address: form.address,
+        country: form.country,
+        paymentMethod: form.payment,
+        products: cart.map(item => ({
+          id: item.id,
+          title: item.title,
+          pricePKR: item.pricePKR,
+          quantity: item.quantity
+        })),
+        totalPricePKR,
+        totalPriceUSD,
+      });
+      setSubmitted(true);
+      clearCart();
+    } catch (error) {
+      alert("Failed to place order. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (submitted) {
@@ -115,7 +138,16 @@ export default function CheckoutPage() {
                     <span>Total</span>
                     <span className="text-primary">{formatPrice(totalPricePKR, 'PKR')}</span>
                   </div>
-                  <button type="submit" className="luxury-button w-full">Place Order</button>
+                  <button type="submit" disabled={loading} className="luxury-button w-full flex items-center justify-center gap-2">
+                    {loading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      'Place Order'
+                    )}
+                  </button>
                 </div>
               </div>
             </form>

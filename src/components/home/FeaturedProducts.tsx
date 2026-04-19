@@ -1,10 +1,29 @@
-import React from 'react';
+'use client';
+
+import React, { useState, useEffect } from 'react';
 import ProductCard from '@/components/product/ProductCard';
 import Link from 'next/link';
-import { MOCK_PRODUCTS } from '@/lib/products';
+import { getProducts } from '@/lib/db';
+import { Product } from '@/context/CartContext';
+import { Loader2 } from 'lucide-react';
 
 const FeaturedProducts = () => {
-  const featured = MOCK_PRODUCTS.slice(0, 4);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetch = async () => {
+      try {
+        const data = await getProducts();
+        setProducts(data.slice(0, 4));
+      } catch (error) {
+        console.error("Failed to fetch featured products", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetch();
+  }, []);
 
   return (
     <section className="py-32 bg-black">
@@ -18,11 +37,22 @@ const FeaturedProducts = () => {
             View All Products
           </Link>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {featured.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+        
+        {loading ? (
+          <div className="flex justify-center py-20">
+            <Loader2 className="w-8 h-8 text-primary animate-spin" />
+          </div>
+        ) : products.length === 0 ? (
+            <div className="text-center py-20">
+                <p className="text-white/20 font-serif">Our featured collection is currently being updated.</p>
+            </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

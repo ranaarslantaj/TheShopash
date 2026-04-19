@@ -6,18 +6,48 @@ import { motion } from 'framer-motion';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import ProductCard from '@/components/product/ProductCard';
-import { useCart } from '@/context/CartContext';
-import { MOCK_PRODUCTS } from '@/lib/products';
+import { useCart, Product } from '@/context/CartContext';
+import { getProductById, getProducts } from '@/lib/db';
 import { formatPrice } from '@/lib/utils';
-import { ShoppingCart, Zap, MessageCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ShoppingCart, Zap, MessageCircle, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function ProductDetailPage() {
   const params = useParams();
   const { addToCart } = useCart();
-  const [imgIdx, setImgIdx] = useState(0);
+  const [product, setProduct] = React.useState<Product | null>(null);
+  const [related, setRelated] = React.useState<Product[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [imgIdx, setImgIdx] = React.useState(0);
 
-  const product = MOCK_PRODUCTS.find(p => p.id === params.id);
+  React.useEffect(() => {
+    const fetchProductAndRelated = async () => {
+      if (!params.id) return;
+      setLoading(true);
+      const data = await getProductById(params.id as string);
+      if (data) {
+        setProduct(data);
+        const allProducts = await getProducts();
+        setRelated(allProducts.filter(p => p.id !== data.id).slice(0, 3));
+      }
+      setLoading(false);
+    };
+    fetchProductAndRelated();
+  }, [params.id]);
+
+  if (loading) {
+    return (
+      <main>
+        <Navbar />
+        <div className="min-h-screen flex flex-col items-center justify-center bg-black gap-4">
+          <Loader2 className="w-10 h-10 text-primary animate-spin" />
+          <p className="text-white/30 font-serif">Unveiling Masterpiece...</p>
+        </div>
+        <Footer />
+      </main>
+    );
+  }
+
   if (!product) {
     return (
       <main>
@@ -30,7 +60,6 @@ export default function ProductDetailPage() {
     );
   }
 
-  const related = MOCK_PRODUCTS.filter(p => p.id !== product.id).slice(0, 3);
   const whatsappMsg = encodeURIComponent(`Hi, I'm interested in buying "${product.title}" from Shop Ash. Price: ${formatPrice(product.pricePKR, 'PKR')}`);
   const whatsappUrl = `https://wa.me/923001234567?text=${whatsappMsg}`;
 

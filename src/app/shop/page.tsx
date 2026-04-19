@@ -1,28 +1,40 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import ProductCard from '@/components/product/ProductCard';
-import { MOCK_PRODUCTS } from '@/lib/products';
-import { SlidersHorizontal, ChevronDown } from 'lucide-react';
+import { getProducts } from '@/lib/db';
+import { Product } from '@/context/CartContext';
+import { SlidersHorizontal, ChevronDown, Loader2 } from 'lucide-react';
 
 type SortOption = 'latest' | 'low-high' | 'high-low';
 
 export default function ShopPage() {
   const [category, setCategory] = useState('All');
   const [sort, setSort] = useState<SortOption>('latest');
-  const [showFilters, setShowFilters] = useState(false);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const categories = ['All', 'Watches', 'Clothes', 'Perfumes', 'Accessories'];
 
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      const data = await getProducts();
+      setProducts(data);
+      setLoading(false);
+    };
+    fetchProducts();
+  }, []);
+
   const filtered = useMemo(() => {
-    let items = category === 'All' ? MOCK_PRODUCTS : MOCK_PRODUCTS.filter(p => p.category === category);
+    let items = category === 'All' ? products : products.filter(p => p.category === category);
     if (sort === 'low-high') items = [...items].sort((a, b) => a.pricePKR - b.pricePKR);
     else if (sort === 'high-low') items = [...items].sort((a, b) => b.pricePKR - a.pricePKR);
     return items;
-  }, [category, sort]);
+  }, [category, sort, products]);
 
   return (
     <main>
@@ -65,7 +77,12 @@ export default function ShopPage() {
       {/* Products Grid */}
       <section className="py-20 bg-black min-h-[60vh]">
         <div className="container mx-auto px-6">
-          {filtered.length === 0 ? (
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-20 space-y-4">
+              <Loader2 className="w-10 h-10 text-primary animate-spin" />
+              <p className="text-white/30 font-serif">Loading Collection...</p>
+            </div>
+          ) : filtered.length === 0 ? (
             <div className="text-center py-20">
               <p className="text-white/30 text-lg font-serif">No products found in this category yet.</p>
               <p className="text-white/20 text-sm mt-2">New arrivals coming soon.</p>
@@ -73,7 +90,7 @@ export default function ShopPage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filtered.map((product, i) => (
-                <motion.div key={product.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
+                <motion.div key={product.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
                   <ProductCard product={product} />
                 </motion.div>
               ))}
