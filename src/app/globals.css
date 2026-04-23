@@ -4,14 +4,19 @@
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --font-serif: var(--font-playfair), serif;
 
-  --color-primary: #d4af37; /* Gold */
-  --color-secondary: #c0c0c0; /* Silver */
-  --color-accent: #d4af37;
-  --color-background: #0a0a0a;
-  --color-foreground: #f5f5f5;
+  --color-primary: #a67c00;       /* Deep burnished gold */
+  --color-secondary: #1a1a1a;
+  --color-accent: #c9a55a;
+  --color-background: #ffffff;    /* Clean white */
+  --color-surface: #ffffff;
+  --color-foreground: #111111;
+  --color-muted: #6b6b6b;
+  --color-soft: #f7f5f0;          /* Warm off-white band */
+  --color-border: #e9e6df;
 
   --animate-fade-in: fade-in 0.5s ease-out;
   --animate-slide-up: slide-up 0.5s ease-out;
+  --animate-marquee: marquee 25s linear infinite;
 
   @keyframes fade-in {
     from { opacity: 0; }
@@ -21,11 +26,19 @@
     from { transform: translateY(20px); opacity: 0; }
     to { transform: translateY(0); opacity: 1; }
   }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
 }
 
 :root {
-  --background: #0a0a0a;
-  --foreground: #f5f5f5;
+  --background: #ffffff;
+  --foreground: #111111;
+  --surface: #ffffff;
+  --muted: #6b6b6b;
+  --soft: #f7f5f0;
+  --border: #e9e6df;
 }
 
 body {
@@ -33,40 +46,65 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans);
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-serif);
   font-weight: 300;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.015em;
 }
 
 .luxury-text-gradient {
-  background: linear-gradient(to right, #d4af37, #f7e08a, #d4af37);
+  background: linear-gradient(to right, #8e6a00, #d4af37, #8e6a00);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .luxury-button {
-  @apply px-8 py-3 bg-primary text-black font-medium transition-all duration-300 hover:bg-white hover:text-black;
+  @apply px-8 py-3 bg-[var(--foreground)] text-white font-medium tracking-widest text-xs uppercase transition-all duration-300 hover:bg-primary hover:text-white;
 }
 
 .luxury-outline-button {
-  @apply px-8 py-3 border border-primary text-primary font-medium transition-all duration-300 hover:bg-primary hover:text-black;
+  @apply px-8 py-3 border border-[var(--foreground)] text-[var(--foreground)] font-medium tracking-widest text-xs uppercase transition-all duration-300 hover:bg-[var(--foreground)] hover:text-white;
 }
 
-.glass-nav {
-  @apply sticky top-0 z-50 backdrop-blur-md bg-black/70 border-b border-white/10;
+.eyebrow {
+  @apply text-[10px] uppercase tracking-[0.4em] text-primary font-medium;
 }
 
-/* Custom Scrollbar */
+.section-title {
+  @apply text-4xl md:text-5xl font-serif text-[var(--foreground)] leading-tight;
+}
+
+.divider-gold {
+  width: 40px;
+  height: 1px;
+  background: linear-gradient(to right, transparent, #a67c00, transparent);
+  margin: 1rem auto;
+}
+
+/* Product tag pill */
+.pill {
+  @apply inline-block text-[9px] uppercase tracking-[0.3em] px-3 py-1 font-medium;
+}
+
+/* Hide scrollbar utility for inner carousels */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }
+
+/* Global custom scrollbar */
 ::-webkit-scrollbar {
-  width: 5px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0a0a0a;
+  background: #f1efe9;
 }
 ::-webkit-scrollbar-thumb {
-  background: #d4af37;
+  background: #c9a55a;
   border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a67c00;
 }

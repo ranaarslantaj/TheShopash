@@ -29,11 +29,11 @@ export default function CheckoutPage() {
         address: form.address,
         country: form.country,
         paymentMethod: form.payment,
-        products: cart.map(item => ({
+        products: cart.map((item) => ({
           id: item.id,
           title: item.title,
           pricePKR: item.pricePKR,
-          quantity: item.quantity
+          quantity: item.quantity,
         })),
         totalPricePKR,
         totalPriceUSD,
@@ -41,21 +41,26 @@ export default function CheckoutPage() {
       setSubmitted(true);
       clearCart();
     } catch (error) {
-      alert("Failed to place order. Please try again.");
+      alert('Failed to place order. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
+  const inputClass =
+    'w-full bg-white border border-[var(--border)] px-5 py-3 text-[var(--foreground)] focus:outline-none focus:border-primary transition-colors';
+
   if (submitted) {
     return (
       <main>
         <Navbar />
-        <section className="pt-32 pb-20 bg-black min-h-screen flex items-center justify-center">
+        <section className="pt-16 pb-20 bg-[var(--background)] min-h-screen flex items-center justify-center">
           <div className="text-center space-y-6 max-w-md mx-auto px-6">
             <CheckCircle className="w-20 h-20 text-primary mx-auto" />
-            <h1 className="text-4xl font-serif text-white">Order Confirmed</h1>
-            <p className="text-white/50 font-light">Thank you for your purchase. We will contact you shortly to confirm your order.</p>
+            <h1 className="text-4xl font-serif text-[var(--foreground)]">Order Confirmed</h1>
+            <p className="text-[var(--muted)] font-light">
+              Thank you for your purchase. Our concierge will contact you shortly to confirm your order.
+            </p>
             <Link href="/shop" className="luxury-button inline-block">Continue Shopping</Link>
           </div>
         </section>
@@ -67,52 +72,81 @@ export default function CheckoutPage() {
   return (
     <main>
       <Navbar />
-      <section className="pt-32 pb-20 bg-black min-h-screen">
+      <section className="pt-16 pb-20 bg-[var(--background)] min-h-screen">
         <div className="container mx-auto px-6">
-          <h1 className="text-4xl md:text-6xl font-serif text-white mb-16">Checkout</h1>
+          <h1 className="text-4xl md:text-6xl font-serif text-[var(--foreground)] mb-16">Checkout</h1>
           {cart.length === 0 ? (
             <div className="text-center py-20">
-              <p className="text-white/30 font-serif text-xl">Your cart is empty</p>
+              <p className="text-[var(--muted)] font-serif text-xl">Your cart is empty</p>
               <Link href="/shop" className="luxury-button inline-block mt-6">Shop Now</Link>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-16">
               {/* Form Fields */}
               <div className="space-y-8">
-                <h3 className="text-white font-serif text-xl">Shipping Details</h3>
+                <h3 className="text-[var(--foreground)] font-serif text-xl">Shipping Details</h3>
                 <div className="space-y-6">
                   <div>
-                    <label className="block text-xs uppercase tracking-widest text-white/40 mb-2">Full Name</label>
-                    <input name="name" value={form.name} onChange={handleChange} required
-                      className="w-full bg-white/5 border border-white/10 px-5 py-3 text-white focus:outline-none focus:border-primary transition-colors" />
+                    <label className="block text-xs uppercase tracking-widest text-[var(--muted)] mb-2">Full Name</label>
+                    <input name="name" value={form.name} onChange={handleChange} required className={inputClass} />
                   </div>
                   <div>
-                    <label className="block text-xs uppercase tracking-widest text-white/40 mb-2">Phone Number</label>
-                    <input name="phone" value={form.phone} onChange={handleChange} required
-                      className="w-full bg-white/5 border border-white/10 px-5 py-3 text-white focus:outline-none focus:border-primary transition-colors" />
+                    <label className="block text-xs uppercase tracking-widest text-[var(--muted)] mb-2">Phone Number</label>
+                    <input name="phone" value={form.phone} onChange={handleChange} required className={inputClass} />
                   </div>
                   <div>
-                    <label className="block text-xs uppercase tracking-widest text-white/40 mb-2">Address</label>
-                    <textarea name="address" value={form.address} onChange={handleChange} required rows={3}
-                      className="w-full bg-white/5 border border-white/10 px-5 py-3 text-white focus:outline-none focus:border-primary transition-colors resize-none" />
+                    <label className="block text-xs uppercase tracking-widest text-[var(--muted)] mb-2">Address</label>
+                    <textarea
+                      name="address"
+                      value={form.address}
+                      onChange={handleChange}
+                      required
+                      rows={3}
+                      className={`${inputClass} resize-none`}
+                    />
                   </div>
                   <div>
-                    <label className="block text-xs uppercase tracking-widest text-white/40 mb-2">Country</label>
-                    <select name="country" value={form.country} onChange={handleChange}
-                      className="w-full bg-white/5 border border-white/10 px-5 py-3 text-white focus:outline-none focus:border-primary transition-colors">
+                    <label className="block text-xs uppercase tracking-widest text-[var(--muted)] mb-2">Country</label>
+                    <select name="country" value={form.country} onChange={handleChange} className={inputClass}>
                       <option value="Pakistan">Pakistan</option>
                       <option value="International">International</option>
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs uppercase tracking-widest text-white/40 mb-2">Payment Method</label>
+                    <label className="block text-xs uppercase tracking-widest text-[var(--muted)] mb-2">Payment Method</label>
                     <div className="flex gap-4">
-                      <label className={`flex-1 p-4 border cursor-pointer text-center text-sm transition-all ${form.payment === 'cod' ? 'border-primary text-primary bg-primary/10' : 'border-white/10 text-white/50'}`}>
-                        <input type="radio" name="payment" value="cod" checked={form.payment === 'cod'} onChange={handleChange} className="hidden" />
+                      <label
+                        className={`flex-1 p-4 border cursor-pointer text-center text-sm transition-all ${
+                          form.payment === 'cod'
+                            ? 'border-primary text-primary bg-primary/10'
+                            : 'border-[var(--border)] text-[var(--muted)]'
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="payment"
+                          value="cod"
+                          checked={form.payment === 'cod'}
+                          onChange={handleChange}
+                          className="hidden"
+                        />
                         Cash on Delivery
                       </label>
-                      <label className={`flex-1 p-4 border cursor-pointer text-center text-sm transition-all ${form.payment === 'stripe' ? 'border-primary text-primary bg-primary/10' : 'border-white/10 text-white/50'}`}>
-                        <input type="radio" name="payment" value="stripe" checked={form.payment === 'stripe'} onChange={handleChange} className="hidden" />
+                      <label
+                        className={`flex-1 p-4 border cursor-pointer text-center text-sm transition-all ${
+                          form.payment === 'stripe'
+                            ? 'border-primary text-primary bg-primary/10'
+                            : 'border-[var(--border)] text-[var(--muted)]'
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="payment"
+                          value="stripe"
+                          checked={form.payment === 'stripe'}
+                          onChange={handleChange}
+                          className="hidden"
+                        />
                         Card (Coming Soon)
                       </label>
                     </div>
@@ -122,19 +156,19 @@ export default function CheckoutPage() {
 
               {/* Order Summary */}
               <div>
-                <div className="bg-white/5 border border-white/10 p-8 space-y-6 sticky top-28">
-                  <h3 className="text-white font-serif text-xl">Order Summary</h3>
-                  <div className="h-px bg-white/10" />
+                <div className="bg-white border border-[var(--border)] p-8 space-y-6 sticky top-28 shadow-sm">
+                  <h3 className="text-[var(--foreground)] font-serif text-xl">Order Summary</h3>
+                  <div className="h-px bg-[var(--border)]" />
                   <div className="space-y-4 max-h-60 overflow-y-auto">
-                    {cart.map(item => (
+                    {cart.map((item) => (
                       <div key={item.id} className="flex justify-between text-sm">
-                        <span className="text-white/60">{item.title} × {item.quantity}</span>
-                        <span className="text-white/80">{formatPrice(item.pricePKR * item.quantity, 'PKR')}</span>
+                        <span className="text-[var(--foreground)]/75">{item.title} × {item.quantity}</span>
+                        <span className="text-[var(--foreground)]">{formatPrice(item.pricePKR * item.quantity, 'PKR')}</span>
                       </div>
                     ))}
                   </div>
-                  <div className="h-px bg-white/10" />
-                  <div className="flex justify-between text-white text-lg">
+                  <div className="h-px bg-[var(--border)]" />
+                  <div className="flex justify-between text-[var(--foreground)] text-lg">
                     <span>Total</span>
                     <span className="text-primary">{formatPrice(totalPricePKR, 'PKR')}</span>
                   </div>

@@ -14,11 +14,11 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Shop Ash | Premium Luxury Watches & Accessories",
-  description: "Experience the pinnacle of luxury with Shop Ash. Curated premium watches, fashion, and accessories for the global connoisseur.",
+  title: "Shop Ash | Premium Luxury Watches",
+  description: "A curated house of the world's finest timepieces — Rolex, Rado, Patek Philippe, Omega, Cartier and more. For men and women who value the art of time.",
   openGraph: {
-    title: "Shop Ash | Luxury Reimagined",
-    description: "Curated premium watches and fashion accessories.",
+    title: "Shop Ash | The Art of Timeless Elegance",
+    description: "Curated luxury watches by the world's most revered Maisons.",
     type: "website",
   }
 };
@@ -29,8 +29,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
-      <body className={`${inter.variable} ${playfair.variable} antialiased`} suppressHydrationWarning>
+    <html lang="en" className="light" suppressHydrationWarning>
+      <body className={`${inter.variable} ${playfair.variable} antialiased bg-[var(--background)] text-[var(--foreground)]`} suppressHydrationWarning>
         <CartProvider>
           {children}
         </CartProvider>

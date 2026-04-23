@@ -16,10 +16,14 @@ export default function SeedPage() {
     setMessage('Starting seed process...');
 
     try {
-      // 1. Check if products already exist to avoid duplicates
+      if (!db) {
+        setStatus('error');
+        setMessage('Firebase is not configured. Add your credentials to .env.local to seed.');
+        return;
+      }
       const productsRef = collection(db, 'products');
       const existingDocs = await getDocs(query(productsRef, limit(1)));
-      
+
       if (!existingDocs.empty) {
         if (!confirm('Products already exist in Firestore. Do you want to add mock products anyway?')) {
           setStatus('idle');
@@ -28,9 +32,8 @@ export default function SeedPage() {
         }
       }
 
-      // 2. Add each mock product
       for (const product of MOCK_PRODUCTS) {
-        const { id, ...productData } = product; // Remove mock id to let Firestore generate one
+        const { id, ...productData } = product;
         await addDoc(productsRef, {
           ...productData,
           createdAt: serverTimestamp(),
@@ -39,7 +42,7 @@ export default function SeedPage() {
       }
 
       setStatus('success');
-      setMessage('Successfully seeded 6 luxury timepieces to Firestore!');
+      setMessage(`Successfully seeded ${MOCK_PRODUCTS.length} luxury timepieces to Firestore!`);
     } catch (error: any) {
       console.error(error);
       setStatus('error');
@@ -50,31 +53,28 @@ export default function SeedPage() {
   return (
     <main>
       <Navbar />
-      <section className="pt-32 pb-20 bg-black min-h-screen">
+      <section className="pt-20 pb-20 bg-[var(--background)] min-h-screen">
         <div className="container mx-auto px-6 text-center">
-          <h1 className="text-4xl font-serif text-white mb-8">Database Seeder</h1>
-          <p className="text-white/50 mb-12 max-w-xl mx-auto">
-            This tool will upload the initial set of luxury watches from <code className="text-primary">mock/products.ts</code> to your Firestore 
-            <code className="text-primary">products</code> collection.
+          <h1 className="text-4xl font-serif text-[var(--foreground)] mb-8">Database Seeder</h1>
+          <p className="text-[var(--muted)] mb-12 max-w-xl mx-auto">
+            Uploads the curated watch catalogue from <code className="text-primary">lib/products.ts</code> to your Firestore
+            <code className="text-primary"> products</code> collection (including brand + gender metadata).
           </p>
 
-          <div className="bg-white/5 border border-white/10 p-12 max-w-lg mx-auto">
+          <div className="bg-white border border-[var(--border)] p-12 max-w-lg mx-auto shadow-sm">
             {status === 'success' ? (
               <div className="space-y-6">
                 <div className="text-primary text-5xl">✓</div>
-                <h2 className="text-2xl text-white font-serif">Seed Complete</h2>
-                <p className="text-white/60">{message}</p>
-                <button 
-                  onClick={() => window.location.href = '/shop'}
-                  className="luxury-button inline-block"
-                >
+                <h2 className="text-2xl text-[var(--foreground)] font-serif">Seed Complete</h2>
+                <p className="text-[var(--muted)]">{message}</p>
+                <button onClick={() => (window.location.href = '/shop')} className="luxury-button inline-block">
                   Go to Shop
                 </button>
               </div>
             ) : (
               <div className="space-y-6">
-                <p className="text-white/40 text-sm">{message || 'Ready to seed database'}</p>
-                <button 
+                <p className="text-[var(--muted)] text-sm">{message || 'Ready to seed database'}</p>
+                <button
                   onClick={handleSeed}
                   disabled={status === 'loading'}
                   className={`luxury-button w-full ${status === 'loading' ? 'opacity-50 cursor-not-allowed' : ''}`}

@@ -4,79 +4,229 @@ export const MOCK_PRODUCTS: Product[] = [
   {
     id: '1',
     title: 'Royal Oak Skeleton',
+    reference: '15407ST',
     pricePKR: 1250000,
     priceUSD: 4500,
-    description: 'A masterpiece of horological engineering, featuring a hand-finished skeleton movement visible through the sapphire crystal caseback. The iconic octagonal bezel with exposed screws speaks to decades of uncompromising Swiss watchmaking tradition.',
+    description:
+      'A masterpiece of horological engineering, featuring a hand-finished skeleton movement visible through the sapphire crystal caseback. The iconic octagonal bezel with exposed screws speaks to decades of uncompromising Swiss watchmaking tradition.',
     images: [
       'https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?q=80&w=1974&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1622434641406-a158123450f9?q=80&w=1974&auto=format&fit=crop'
+      'https://images.unsplash.com/photo-1622434641406-a158123450f9?q=80&w=1974&auto=format&fit=crop',
     ],
     category: 'Watches',
-    stock: 5
+    brand: 'Audemars Piguet',
+    gender: 'Men',
+    style: 'Sport',
+    tags: ['editors-pick', 'rare'],
+    stock: 5,
   },
   {
     id: '2',
     title: 'Seamaster Heritage',
+    reference: '234.30.41',
     pricePKR: 850000,
     priceUSD: 3100,
-    description: 'A tribute to the classic diving watches of the 1960s. This heritage timepiece combines vintage aesthetics with cutting-edge ceramic materials and a Co-Axial Master Chronometer movement.',
+    description:
+      'A tribute to the classic diving watches of the 1960s. This heritage timepiece combines vintage aesthetics with cutting-edge ceramic materials and a Co-Axial Master Chronometer movement.',
     images: [
       'https://images.unsplash.com/photo-1524592094714-0f0654e20314?q=80&w=2099&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1533139502658-0198f920d8e8?q=80&w=1942&auto=format&fit=crop'
+      'https://images.unsplash.com/photo-1533139502658-0198f920d8e8?q=80&w=1942&auto=format&fit=crop',
     ],
     category: 'Watches',
-    stock: 3
+    brand: 'Omega',
+    gender: 'Men',
+    style: 'Diver',
+    tags: ['bestseller'],
+    stock: 3,
   },
   {
     id: '3',
     title: 'Day-Date Platinum',
+    reference: '228206',
     pricePKR: 3500000,
     priceUSD: 12500,
-    description: 'The ultimate prestige watch, crafted from solid 950 platinum with the legendary ice-blue dial. Worn by world leaders and visionaries, this timepiece is the definitive symbol of achievement.',
+    description:
+      'The ultimate prestige watch, crafted from solid 950 platinum with the legendary ice-blue dial. Worn by world leaders and visionaries, this timepiece is the definitive symbol of achievement.',
     images: [
       'https://images.unsplash.com/photo-1587836374828-4dbafa94cf0e?q=80&w=2070&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1509941943102-10c232535736?q=80&w=2070&auto=format&fit=crop'
+      'https://images.unsplash.com/photo-1509941943102-10c232535736?q=80&w=2070&auto=format&fit=crop',
     ],
     category: 'Watches',
-    stock: 2
+    brand: 'Rolex',
+    gender: 'Men',
+    style: 'Dress',
+    tags: ['editors-pick', 'rare'],
+    stock: 2,
   },
   {
     id: '4',
     title: 'Nautilus Rose Gold',
+    reference: '5711/1R',
     pricePKR: 4200000,
     priceUSD: 15120,
-    description: 'Elegant sports luxury in 18k rose gold with a sunburst brown dial and horizontal embossing. A masterwork of Gerald Genta design philosophy, coveted by collectors worldwide.',
+    description:
+      'Elegant sports luxury in 18k rose gold with a sunburst brown dial and horizontal embossing. A masterwork of Gerald Genta design philosophy, coveted by collectors worldwide.',
     images: [
       'https://images.unsplash.com/photo-1612817288484-6f916006741a?q=80&w=2070&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1594534475808-b18fc33b045e?q=80&w=2070&auto=format&fit=crop'
+      'https://images.unsplash.com/photo-1594534475808-b18fc33b045e?q=80&w=2070&auto=format&fit=crop',
     ],
     category: 'Watches',
-    stock: 1
+    brand: 'Patek Philippe',
+    gender: 'Men',
+    style: 'Sport',
+    tags: ['editors-pick', 'rare'],
+    stock: 1,
   },
   {
     id: '5',
-    title: 'Chronograph Noir',
+    title: 'Carrera Chronograph Noir',
+    reference: 'CBN2A1B',
     pricePKR: 680000,
     priceUSD: 2450,
-    description: 'A striking all-black chronograph with luminous indices and a tachymeter bezel. Precision movement housed in a 42mm ceramic case, built for those who command attention.',
+    description:
+      'A striking all-black chronograph with luminous indices and a tachymeter bezel. Precision movement housed in a 42mm ceramic case, built for those who command attention.',
     images: [
       'https://images.unsplash.com/photo-1548169874-53e85f753f1e?q=80&w=2076&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1618220179428-22790b461013?q=80&w=2070&auto=format&fit=crop'
+      'https://images.unsplash.com/photo-1618220179428-22790b461013?q=80&w=2070&auto=format&fit=crop',
     ],
     category: 'Watches',
-    stock: 7
+    brand: 'Tag Heuer',
+    gender: 'Men',
+    style: 'Chronograph',
+    tags: ['new', 'bestseller'],
+    stock: 7,
   },
   {
     id: '6',
     title: 'Moonphase Classic',
+    reference: '5236P',
     pricePKR: 1950000,
     priceUSD: 7020,
-    description: 'An exquisite moonphase complication set against a deep midnight-blue enamel dial. The 40mm white gold case houses a hand-wound manufacture calibre with 72-hour power reserve.',
+    description:
+      'An exquisite moonphase complication set against a deep midnight-blue enamel dial. The 40mm white gold case houses a hand-wound manufacture calibre with 72-hour power reserve.',
     images: [
       'https://images.unsplash.com/photo-1539874754764-5a96559165b0?q=80&w=2030&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1547996160-81dfa63595aa?q=80&w=2074&auto=format&fit=crop'
+      'https://images.unsplash.com/photo-1547996160-81dfa63595aa?q=80&w=2074&auto=format&fit=crop',
     ],
     category: 'Watches',
-    stock: 4
-  }
+    brand: 'Patek Philippe',
+    gender: 'Men',
+    style: 'Dress',
+    tags: ['editors-pick'],
+    stock: 4,
+  },
+  {
+    id: '7',
+    title: 'True Thinline Ceramic',
+    reference: 'R27742152',
+    pricePKR: 420000,
+    priceUSD: 1520,
+    description:
+      'High-tech ceramic monobloc case, weighing only a few grams. A minimalist icon redefined — scratch-resistant, hypoallergenic, and extraordinarily light on the wrist.',
+    images: [
+      'https://images.unsplash.com/photo-1620625515032-6ed0c1790c75?q=80&w=2070&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1600003263720-95b45a4035d5?q=80&w=2070&auto=format&fit=crop',
+    ],
+    category: 'Watches',
+    brand: 'Rado',
+    gender: 'Unisex',
+    style: 'Dress',
+    tags: ['new'],
+    stock: 6,
+  },
+  {
+    id: '8',
+    title: 'Captain Cook Bronze',
+    reference: 'R32504208',
+    pricePKR: 560000,
+    priceUSD: 2020,
+    description:
+      'A heritage diver reissued in warm bronze that develops a unique patina over time. Automatic movement, 300m water resistance, a piece that wears its history proudly.',
+    images: [
+      'https://images.unsplash.com/photo-1697731315333-eaa6b7358ffa?q=80&w=1974&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1623998021446-45cd9b269c95?q=80&w=1974&auto=format&fit=crop',
+    ],
+    category: 'Watches',
+    brand: 'Rado',
+    gender: 'Men',
+    style: 'Diver',
+    tags: ['bestseller'],
+    stock: 5,
+  },
+  {
+    id: '9',
+    title: 'Datejust 31 Mother of Pearl',
+    reference: '278273',
+    pricePKR: 2100000,
+    priceUSD: 7560,
+    description:
+      'A refined 31mm Oystersteel and yellow gold timepiece with a shimmering mother-of-pearl dial and diamond hour markers. Elegance distilled into a single iconic silhouette.',
+    images: [
+      'https://images.unsplash.com/photo-1629581678015-fa48ad8441bb?q=80&w=2070&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1651133488734-a5e2be6c6a7b?q=80&w=1974&auto=format&fit=crop',
+    ],
+    category: 'Watches',
+    brand: 'Rolex',
+    gender: 'Women',
+    style: 'Dress',
+    tags: ['bestseller', 'editors-pick'],
+    stock: 2,
+  },
+  {
+    id: '10',
+    title: 'Ballon Bleu de Cartier',
+    reference: 'W6920046',
+    pricePKR: 1350000,
+    priceUSD: 4860,
+    description:
+      'A Parisian silhouette with a signature blue sapphire cabochon set into the crown. A feminine classic that has defined understated luxury for a generation.',
+    images: [
+      'https://images.unsplash.com/photo-1663949800049-a4489eb63dfc?q=80&w=1974&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1611923134239-b9be5816e23c?q=80&w=1974&auto=format&fit=crop',
+    ],
+    category: 'Watches',
+    brand: 'Cartier',
+    gender: 'Women',
+    style: 'Dress',
+    tags: ['new', 'editors-pick'],
+    stock: 3,
+  },
+  {
+    id: '11',
+    title: 'De Ville Prestige',
+    reference: '424.10.33',
+    pricePKR: 720000,
+    priceUSD: 2590,
+    description:
+      'A dress watch in the purest sense — slim case, Roman numerals, and a silvered opaline dial. Co-Axial escapement inside, timeless proportions outside.',
+    images: [
+      'https://images.unsplash.com/photo-1612646898898-3eae46bfe1c4?q=80&w=1974&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1617711164094-dae2c79b88e1?q=80&w=1974&auto=format&fit=crop',
+    ],
+    category: 'Watches',
+    brand: 'Omega',
+    gender: 'Women',
+    style: 'Dress',
+    tags: ['bestseller'],
+    stock: 4,
+  },
+  {
+    id: '12',
+    title: 'PRX Powermatic 80',
+    reference: 'T137.407',
+    pricePKR: 185000,
+    priceUSD: 665,
+    description:
+      'Integrated bracelet design at an accessible price point. Tonneau-shaped steel case and a textured waffle dial, powered by an 80-hour automatic movement.',
+    images: [
+      'https://images.unsplash.com/photo-1663949800049-a4489eb63dfc?q=80&w=1974&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1524805444758-089113d48a6d?q=80&w=1974&auto=format&fit=crop',
+    ],
+    category: 'Watches',
+    brand: 'Tissot',
+    gender: 'Unisex',
+    style: 'Sport',
+    tags: ['new', 'bestseller'],
+    stock: 9,
+  },
 ];

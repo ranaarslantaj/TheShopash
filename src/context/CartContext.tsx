@@ -2,6 +2,19 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
+export type Gender = 'Men' | 'Women' | 'Unisex';
+export type WatchBrand =
+  | 'Rolex'
+  | 'Rado'
+  | 'Omega'
+  | 'Patek Philippe'
+  | 'Audemars Piguet'
+  | 'Tag Heuer'
+  | 'Cartier'
+  | 'Tissot';
+export type WatchStyle = 'Dress' | 'Sport' | 'Diver' | 'Chronograph';
+export type ProductTag = 'new' | 'bestseller' | 'editors-pick' | 'rare';
+
 export interface Product {
   id: string;
   title: string;
@@ -10,6 +23,11 @@ export interface Product {
   description: string;
   images: string[];
   category: string;
+  brand: WatchBrand;
+  gender: Gender;
+  style: WatchStyle;
+  tags?: ProductTag[];
+  reference?: string;
   stock: number;
 }
 

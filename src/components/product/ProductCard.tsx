@@ -1,69 +1,90 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ShoppingCart, Eye } from 'lucide-react';
+import { ShoppingBag, Eye } from 'lucide-react';
 import { Product, useCart } from '@/context/CartContext';
 import { formatPrice } from '@/lib/utils';
 
 interface ProductCardProps {
   product: Product;
+  compact?: boolean;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+const tagLabel: Record<string, { text: string; className: string }> = {
+  new: { text: 'New', className: 'bg-[var(--foreground)] text-white' },
+  bestseller: { text: 'Bestseller', className: 'bg-primary text-white' },
+  'editors-pick': { text: "Editor's Pick", className: 'bg-white text-[var(--foreground)] border border-[var(--foreground)]' },
+  rare: { text: 'Rare', className: 'bg-white text-primary border border-primary' },
+};
+
+const ProductCard: React.FC<ProductCardProps> = ({ product, compact = false }) => {
   const { addToCart } = useCart();
+  const [isHovered, setIsHovered] = useState(false);
+
+  const hasSecondImage = product.images.length > 1;
+  const displayImage = isHovered && hasSecondImage ? product.images[1] : product.images[0];
+  const topTag = product.tags?.[0];
 
   return (
-    <motion.div 
-      whileHover={{ y: -10 }}
-      className="group relative bg-white/5 border border-white/10 overflow-hidden"
+    <motion.div
+      whileHover={{ y: -6 }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className="group relative"
     >
-      {/* Image Container */}
-      <div className="relative aspect-[4/5] overflow-hidden">
+      {/* Image */}
+      <div className="relative aspect-[4/5] overflow-hidden bg-[var(--soft)]">
         <Link href={`/product/${product.id}`}>
-          <img 
-            src={product.images[0]} 
+          <img
+            src={displayImage}
             alt={product.title}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+            className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105"
           />
         </Link>
-        
-        {/* Overlay Actions */}
-        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center space-x-4">
-          <button 
-            onClick={() => addToCart(product)}
-            className="p-3 bg-primary text-black hover:bg-white transition-colors duration-300"
-            title="Add to Cart"
-          >
-            <ShoppingCart className="w-5 h-5" />
-          </button>
-          <Link 
-            href={`/product/${product.id}`}
-            className="p-3 bg-white text-black hover:bg-primary transition-colors duration-300"
-            title="View Details"
-          >
-            <Eye className="w-5 h-5" />
-          </Link>
-        </div>
 
-        {/* Category Tag */}
-        <div className="absolute top-4 left-4 bg-black/80 px-3 py-1 text-[10px] uppercase tracking-widest text-primary border border-primary/30">
-          {product.category}
+        {/* Top-left tag */}
+        {topTag && tagLabel[topTag] && (
+          <div className={`absolute top-4 left-4 ${tagLabel[topTag].className}`}>
+            <span className="block px-3 py-1 text-[9px] uppercase tracking-[0.3em]">{tagLabel[topTag].text}</span>
+          </div>
+        )}
+
+        {/* Hover actions */}
+        <div className="absolute inset-x-0 bottom-0 p-4 flex gap-2 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out">
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              addToCart(product);
+            }}
+            className="flex-1 flex items-center justify-center gap-2 bg-[var(--foreground)] text-white px-4 py-3 text-[10px] uppercase tracking-[0.3em] hover:bg-primary transition-colors"
+          >
+            <ShoppingBag className="w-3.5 h-3.5" /> Quick Add
+          </button>
+          <Link
+            href={`/product/${product.id}`}
+            className="flex items-center justify-center bg-white text-[var(--foreground)] px-4 py-3 hover:bg-primary hover:text-white transition-colors"
+            aria-label="View details"
+          >
+            <Eye className="w-4 h-4" />
+          </Link>
         </div>
       </div>
 
-      {/* Product Info */}
-      <div className="p-6 text-center">
-        <h3 className="text-white text-lg font-serif mb-2 group-hover:text-primary transition-colors">
-          <Link href={`/product/${product.id}`}>
-            {product.title}
-          </Link>
+      {/* Info */}
+      <div className={`pt-5 ${compact ? 'pb-2' : 'pb-6'} text-center`}>
+        <p className="text-[10px] uppercase tracking-[0.4em] text-primary mb-2">{product.brand}</p>
+        <h3 className="font-serif text-base md:text-lg text-[var(--foreground)] mb-1 leading-tight group-hover:text-primary transition-colors">
+          <Link href={`/product/${product.id}`}>{product.title}</Link>
         </h3>
-        <div className="flex flex-col space-y-1">
-          <p className="text-primary font-medium">{formatPrice(product.pricePKR, 'PKR')}</p>
-          <p className="text-white/30 text-xs text-center uppercase tracking-tighter italic">Approx. {formatPrice(product.priceUSD, 'USD')}</p>
-        </div>
+        {product.reference && (
+          <p className="text-[10px] uppercase tracking-widest text-[var(--muted)] mb-3">Ref. {product.reference}</p>
+        )}
+        <p className="text-sm text-[var(--foreground)] font-medium">{formatPrice(product.pricePKR, 'PKR')}</p>
+        <p className="text-[10px] text-[var(--muted)] mt-0.5 uppercase tracking-wider">
+          ≈ {formatPrice(product.priceUSD, 'USD')}
+        </p>
       </div>
     </motion.div>
   );
