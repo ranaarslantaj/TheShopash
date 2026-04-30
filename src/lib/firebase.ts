@@ -2,6 +2,7 @@ import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import { getFirestore, Firestore } from 'firebase/firestore';
 import { getStorage, FirebaseStorage } from 'firebase/storage';
 import { getAuth, Auth } from 'firebase/auth';
+import { getAnalytics, isSupported, Analytics } from 'firebase/analytics';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -10,6 +11,7 @@ const firebaseConfig = {
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
 export const isFirebaseConfigured = Boolean(
@@ -20,16 +22,28 @@ let app: FirebaseApp | null = null;
 let db: Firestore | null = null;
 let storage: FirebaseStorage | null = null;
 let auth: Auth | null = null;
+let analytics: Analytics | null = null;
 
 if (isFirebaseConfigured) {
   app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
   db = getFirestore(app);
   storage = getStorage(app);
   auth = getAuth(app);
+
+  // Analytics is browser-only and requires window APIs — initialize lazily client-side.
+  if (typeof window !== 'undefined' && firebaseConfig.measurementId) {
+    isSupported()
+      .then((ok) => {
+        if (ok && app) analytics = getAnalytics(app);
+      })
+      .catch(() => {
+        // Silent — analytics is optional.
+      });
+  }
 } else if (typeof window !== 'undefined') {
   console.warn(
     '[Shop Ash] Firebase env vars not set — running in offline mode with local mock data. Add .env.local to enable Firestore.'
   );
 }
 
-export { app, db, storage, auth };
+export { app, db, storage, auth, analytics };

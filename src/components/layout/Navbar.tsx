@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { ShoppingBag, Menu, X, User, Search, ChevronDown } from 'lucide-react';
+import { ShoppingBag, Menu, X, User, Search, ChevronDown, Package, LogOut, ClipboardList } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import AnnouncementBar from './AnnouncementBar';
 
@@ -38,13 +39,34 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState<null | 'men' | 'women' | 'brands'>(null);
   const [searchOpen, setSearchOpen] = useState(false);
-  const { cartCount } = useCart();
+  const [accountOpen, setAccountOpen] = useState(false);
+  const accountRef = useRef<HTMLDivElement>(null);
+
+  const { cartCount, openDrawer } = useCart();
+  const { user, signOut } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 80);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (accountRef.current && !accountRef.current.contains(e.target as Node)) {
+        setAccountOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', onClick);
+    return () => document.removeEventListener('mousedown', onClick);
+  }, []);
+
+  const handleSignOut = async () => {
+    setAccountOpen(false);
+    await signOut();
+  };
+
+  const userInitial = user?.displayName?.[0]?.toUpperCase() ?? user?.email?.[0]?.toUpperCase() ?? '';
 
   return (
     <>
@@ -58,7 +80,6 @@ const Navbar = () => {
       >
         {/* Top utility row */}
         <div className="container mx-auto px-6 flex justify-between items-center py-4 lg:py-5">
-          {/* Mobile menu button */}
           <button
             className="lg:hidden text-[var(--foreground)]"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -66,7 +87,6 @@ const Navbar = () => {
             {isMobileMenuOpen ? <X /> : <Menu />}
           </button>
 
-          {/* Left spacer/search desktop */}
           <div className="hidden lg:flex items-center gap-6 flex-1">
             <button
               onClick={() => setSearchOpen(!searchOpen)}
@@ -76,6 +96,12 @@ const Navbar = () => {
               Search
             </button>
             <Link
+              href="/track"
+              className="text-xs uppercase tracking-[0.3em] text-[var(--muted)] hover:text-primary transition-colors"
+            >
+              Track Order
+            </Link>
+            <Link
               href="/contact"
               className="text-xs uppercase tracking-[0.3em] text-[var(--muted)] hover:text-primary transition-colors"
             >
@@ -83,7 +109,6 @@ const Navbar = () => {
             </Link>
           </div>
 
-          {/* Logo center */}
           <Link href="/" className="flex flex-col items-center">
             <span className="text-2xl md:text-3xl font-serif tracking-[0.3em] luxury-text-gradient font-light">
               SHOP ASH
@@ -93,8 +118,7 @@ const Navbar = () => {
             </span>
           </Link>
 
-          {/* Right utility */}
-          <div className="flex items-center gap-5 lg:gap-6 flex-1 justify-end">
+          <div className="flex items-center gap-4 lg:gap-6 flex-1 justify-end">
             <button
               onClick={() => setSearchOpen(!searchOpen)}
               className="lg:hidden text-[var(--foreground)]"
@@ -102,21 +126,127 @@ const Navbar = () => {
             >
               <Search className="w-5 h-5" />
             </button>
-            <Link
-              href="/admin/login"
-              className="hidden md:flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-[var(--muted)] hover:text-primary transition-colors"
+
+            {/* Account dropdown */}
+            <div className="relative" ref={accountRef}>
+              <button
+                onClick={() => setAccountOpen(!accountOpen)}
+                className="flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-[var(--muted)] hover:text-primary transition-colors"
+                aria-label="Account"
+              >
+                {user ? (
+                  <span className="w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center text-xs font-medium">
+                    {userInitial}
+                  </span>
+                ) : (
+                  <User className="w-5 h-5 text-[var(--foreground)]" />
+                )}
+                <span className="hidden lg:inline">{user ? 'Account' : 'Sign In'}</span>
+              </button>
+
+              <AnimatePresence>
+                {accountOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 mt-3 w-72 bg-white border border-[var(--border)] shadow-xl z-50"
+                  >
+                    {user ? (
+                      <div>
+                        <div className="px-5 py-4 border-b border-[var(--border)]">
+                          <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--muted)]">Signed in as</p>
+                          <p className="font-serif text-base text-[var(--foreground)] mt-1 truncate">
+                            {user.displayName || user.email}
+                          </p>
+                          {user.displayName && (
+                            <p className="text-xs text-[var(--muted)] mt-0.5 truncate">{user.email}</p>
+                          )}
+                        </div>
+                        <div className="py-2">
+                          <Link
+                            href="/account"
+                            onClick={() => setAccountOpen(false)}
+                            className="flex items-center gap-3 px-5 py-3 text-sm text-[var(--foreground)] hover:bg-[var(--soft)] transition-colors"
+                          >
+                            <User className="w-4 h-4 text-[var(--muted)]" />
+                            My Account
+                          </Link>
+                          <Link
+                            href="/account/orders"
+                            onClick={() => setAccountOpen(false)}
+                            className="flex items-center gap-3 px-5 py-3 text-sm text-[var(--foreground)] hover:bg-[var(--soft)] transition-colors"
+                          >
+                            <Package className="w-4 h-4 text-[var(--muted)]" />
+                            My Orders
+                          </Link>
+                          <Link
+                            href="/track"
+                            onClick={() => setAccountOpen(false)}
+                            className="flex items-center gap-3 px-5 py-3 text-sm text-[var(--foreground)] hover:bg-[var(--soft)] transition-colors"
+                          >
+                            <ClipboardList className="w-4 h-4 text-[var(--muted)]" />
+                            Track an Order
+                          </Link>
+                          <button
+                            onClick={handleSignOut}
+                            className="flex items-center gap-3 px-5 py-3 text-sm text-[var(--foreground)] hover:bg-[var(--soft)] transition-colors w-full text-left border-t border-[var(--border)] mt-2 pt-3"
+                          >
+                            <LogOut className="w-4 h-4 text-[var(--muted)]" />
+                            Sign Out
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="p-5 space-y-4">
+                        <p className="text-sm text-[var(--muted)] font-light leading-relaxed">
+                          Sign in to view your orders, manage your account, and unlock private previews.
+                        </p>
+                        <Link
+                          href="/account/login"
+                          onClick={() => setAccountOpen(false)}
+                          className="block w-full text-center bg-[var(--foreground)] text-white px-5 py-3 text-xs uppercase tracking-[0.3em] hover:bg-primary transition-colors"
+                        >
+                          Sign In
+                        </Link>
+                        <Link
+                          href="/account/signup"
+                          onClick={() => setAccountOpen(false)}
+                          className="block w-full text-center border border-[var(--foreground)] text-[var(--foreground)] px-5 py-3 text-xs uppercase tracking-[0.3em] hover:bg-[var(--foreground)] hover:text-white transition-colors"
+                        >
+                          Create Account
+                        </Link>
+                        <div className="pt-3 border-t border-[var(--border)]">
+                          <Link
+                            href="/track"
+                            onClick={() => setAccountOpen(false)}
+                            className="flex items-center gap-2 text-xs text-[var(--muted)] hover:text-primary transition-colors"
+                          >
+                            <ClipboardList className="w-4 h-4" />
+                            Track an order without signing in
+                          </Link>
+                        </div>
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Cart */}
+            <button
+              onClick={openDrawer}
+              className="relative group"
+              aria-label={`Open cart, ${cartCount} items`}
             >
-              <User className="w-4 h-4" />
-              <span className="hidden lg:inline">Account</span>
-            </Link>
-            <Link href="/cart" className="relative group">
               <ShoppingBag className="w-5 h-5 text-[var(--foreground)] group-hover:text-primary transition-colors" />
               {cartCount > 0 && (
                 <span className="absolute -top-2 -right-2 bg-primary text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                   {cartCount}
                 </span>
               )}
-            </Link>
+            </button>
           </div>
         </div>
 
@@ -331,6 +461,7 @@ const Navbar = () => {
                 <Link href="/shop?gender=Men" onClick={() => setIsMobileMenuOpen(false)} className="block font-serif text-2xl text-[var(--foreground)]">Men&apos;s Watches</Link>
                 <Link href="/shop?gender=Women" onClick={() => setIsMobileMenuOpen(false)} className="block font-serif text-2xl text-[var(--foreground)]">Women&apos;s Watches</Link>
                 <Link href="/shop" onClick={() => setIsMobileMenuOpen(false)} className="block font-serif text-2xl text-[var(--foreground)]">The Collection</Link>
+                <Link href="/track" onClick={() => setIsMobileMenuOpen(false)} className="block font-serif text-2xl text-[var(--foreground)]">Track Order</Link>
               </div>
               <div className="space-y-3 pt-6 border-t border-[var(--border)]">
                 <p className="eyebrow">The Maisons</p>
@@ -346,10 +477,26 @@ const Navbar = () => {
                 ))}
               </div>
               <div className="space-y-3 pt-6 border-t border-[var(--border)]">
+                <p className="eyebrow">Account</p>
+                {user ? (
+                  <>
+                    <Link href="/account" onClick={() => setIsMobileMenuOpen(false)} className="block text-base text-[var(--foreground)]/80">My Account</Link>
+                    <Link href="/account/orders" onClick={() => setIsMobileMenuOpen(false)} className="block text-base text-[var(--foreground)]/80">My Orders</Link>
+                    <button onClick={() => { setIsMobileMenuOpen(false); handleSignOut(); }} className="block text-base text-[var(--foreground)]/80 text-left">
+                      Sign Out
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link href="/account/login" onClick={() => setIsMobileMenuOpen(false)} className="block text-base text-[var(--foreground)]/80">Sign In</Link>
+                    <Link href="/account/signup" onClick={() => setIsMobileMenuOpen(false)} className="block text-base text-[var(--foreground)]/80">Create Account</Link>
+                  </>
+                )}
+              </div>
+              <div className="space-y-3 pt-6 border-t border-[var(--border)]">
                 <p className="eyebrow">Maison</p>
                 <Link href="/about" onClick={() => setIsMobileMenuOpen(false)} className="block text-base text-[var(--foreground)]/80">Heritage</Link>
                 <Link href="/contact" onClick={() => setIsMobileMenuOpen(false)} className="block text-base text-[var(--foreground)]/80">Boutique · Concierge</Link>
-                <Link href="/admin/login" onClick={() => setIsMobileMenuOpen(false)} className="block text-base text-[var(--foreground)]/80">Account</Link>
               </div>
             </div>
           </motion.div>

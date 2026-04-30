@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
+import { isAdmin } from '@/lib/admin';
 import Link from 'next/link';
 import {
   LayoutDashboard,
@@ -16,6 +17,9 @@ import {
 } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
 
+// Pages that should NOT be wrapped in the admin shell
+const PUBLIC_PATHS = ['/admin/seed'];
+
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -26,25 +30,37 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   useEffect(() => {
     if (!auth) {
       setLoading(false);
+      // Without Firebase configured, send them to /myadmin where the
+      // "not configured" warning is rendered.
+      if (!PUBLIC_PATHS.includes(pathname)) router.replace('/myadmin');
       return;
     }
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUser(user);
-      } else {
-        if (pathname !== '/admin/login' && pathname !== '/admin/seed') {
-          router.push('/admin/login');
-        }
+    const unsub = onAuthStateChanged(auth, async (u) => {
+      if (PUBLIC_PATHS.includes(pathname)) {
+        setLoading(false);
+        return;
       }
+      if (!u) {
+        router.replace('/myadmin');
+        setLoading(false);
+        return;
+      }
+      const admin = await isAdmin(u.uid);
+      if (!admin) {
+        await signOut(auth!);
+        router.replace('/myadmin?error=not-authorized');
+        setLoading(false);
+        return;
+      }
+      setUser(u);
       setLoading(false);
     });
-
-    return () => unsubscribe();
+    return () => unsub();
   }, [router, pathname]);
 
   const handleSignOut = async () => {
     if (auth) await signOut(auth);
-    router.push('/admin/login');
+    router.replace('/myadmin');
   };
 
   if (loading) {
@@ -55,9 +71,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     );
   }
 
-  if (pathname === '/admin/login' || pathname === '/admin/seed') {
+  if (PUBLIC_PATHS.includes(pathname)) {
     return <>{children}</>;
   }
+
+  if (!user) return null;
 
   const menuItems = [
     { name: 'Overview', href: '/admin/dashboard', icon: LayoutDashboard },
@@ -65,6 +83,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: 'Orders', href: '/admin/orders', icon: ShoppingBag },
     { name: 'Settings', href: '/admin/settings', icon: Settings },
   ];
+
+  const initial = user.displayName?.[0]?.toUpperCase() ?? user.email?.[0]?.toUpperCase() ?? 'A';
 
   return (
     <div className="min-h-screen bg-[var(--background)] flex">
@@ -74,7 +94,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link href="/" className="text-xl font-serif tracking-widest luxury-text-gradient">
             SHOP ASH
           </Link>
-          <span className="block text-[10px] uppercase tracking-widest text-[var(--muted)] mt-1">Admin Console</span>
+          <span className="block text-[10px] uppercase tracking-widest text-[var(--muted)] mt-1">
+            Admin Console
+          </span>
+        </div>
+
+        <div className="flex items-center gap-3 mb-6 pb-6 border-b border-[var(--border)]">
+          <span className="w-9 h-9 rounded-full bg-primary text-white flex items-center justify-center text-xs font-medium">
+            {initial}
+          </span>
+          <div className="min-w-0">
+            <p className="text-sm text-[var(--foreground)] truncate">{user.displayName || 'Admin'}</p>
+            <p className="text-[10px] text-[var(--muted)] truncate">{user.email}</p>
+          </div>
         </div>
 
         <nav className="flex-1 space-y-2">
@@ -118,7 +150,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* Mobile Menu Overlay */}
       {sidebarOpen && (
-        <div className="lg:hidden fixed inset-0 z-40 bg-white/98 p-12 flex flex-col">
+        <div className="lg:hidden fixed inset-0 z-40 bg-white p-12 flex flex-col">
           <button onClick={() => setSidebarOpen(false)} className="absolute top-6 right-6 text-[var(--foreground)] text-2xl">
             <X />
           </button>

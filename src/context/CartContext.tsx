@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 export type Gender = 'Men' | 'Women' | 'Unisex';
 export type WatchBrand =
@@ -37,21 +37,24 @@ export interface CartItem extends Product {
 
 interface CartContextType {
   cart: CartItem[];
-  addToCart: (product: Product) => void;
+  addToCart: (product: Product, openDrawer?: boolean) => void;
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
   totalPricePKR: number;
   totalPriceUSD: number;
   cartCount: number;
+  isDrawerOpen: boolean;
+  openDrawer: () => void;
+  closeDrawer: () => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  // Load cart from local storage on mount
   useEffect(() => {
     const savedCart = localStorage.getItem('shop-ash-cart');
     if (savedCart) {
@@ -63,12 +66,26 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  // Save cart to local storage on change
   useEffect(() => {
     localStorage.setItem('shop-ash-cart', JSON.stringify(cart));
   }, [cart]);
 
-  const addToCart = (product: Product) => {
+  // Lock body scroll when drawer is open
+  useEffect(() => {
+    if (isDrawerOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isDrawerOpen]);
+
+  const openDrawer = useCallback(() => setIsDrawerOpen(true), []);
+  const closeDrawer = useCallback(() => setIsDrawerOpen(false), []);
+
+  const addToCart = (product: Product, openDrawerOnAdd = true) => {
     setCart((prevCart) => {
       const existingItem = prevCart.find((item) => item.id === product.id);
       if (existingItem) {
@@ -78,6 +95,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       return [...prevCart, { ...product, quantity: 1 }];
     });
+    if (openDrawerOnAdd) setIsDrawerOpen(true);
   };
 
   const removeFromCart = (productId: string) => {
@@ -115,6 +133,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         totalPricePKR,
         totalPriceUSD,
         cartCount,
+        isDrawerOpen,
+        openDrawer,
+        closeDrawer,
       }}
     >
       {children}
