@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { Suspense, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { auth, isFirebaseConfigured } from '@/lib/firebase';
@@ -8,7 +8,7 @@ import { isAdmin } from '@/lib/admin';
 import { Loader2, Lock, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 
-export default function MyAdminLoginPage() {
+function AdminLoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
@@ -143,5 +143,13 @@ export default function MyAdminLoginPage() {
         </p>
       </div>
     </main>
+  );
+}
+
+export default function MyAdminLoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[var(--soft)]" />}>
+      <AdminLoginForm />
+    </Suspense>
   );
 }

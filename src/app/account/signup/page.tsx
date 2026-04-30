@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { Suspense, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Navbar from '@/components/layout/Navbar';
@@ -17,7 +17,7 @@ const GoogleMark = () => (
   </svg>
 );
 
-export default function AccountSignupPage() {
+function SignupForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { signUpWithEmail, signInWithGoogle, isReady } = useAuth();
@@ -134,5 +134,13 @@ export default function AccountSignupPage() {
       </section>
       <Footer />
     </main>
+  );
+}
+
+export default function AccountSignupPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[var(--background)]" />}>
+      <SignupForm />
+    </Suspense>
   );
 }
