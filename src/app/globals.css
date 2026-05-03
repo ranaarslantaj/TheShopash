@@ -4,19 +4,20 @@
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --font-serif: var(--font-playfair), serif;
 
-  --color-primary: #a67c00;       /* Deep burnished gold */
+  /* ─── Light theme · Nixon-inspired clean white ────────────── */
+  --color-primary: #a67c00;        /* Burnished gold — used sparingly */
   --color-secondary: #1a1a1a;
-  --color-accent: #c9a55a;
-  --color-background: #ffffff;    /* Clean white */
-  --color-surface: #ffffff;
-  --color-foreground: #111111;
-  --color-muted: #6b6b6b;
-  --color-soft: #f7f5f0;          /* Warm off-white band */
-  --color-border: #e9e6df;
+  --color-accent: #A8A39B;         /* Warm taupe */
+  --color-background: #FFFFFF;     /* Clean white */
+  --color-surface: #FFFFFF;
+  --color-foreground: #111111;     /* Near-black */
+  --color-muted: #6B6B6B;          /* Mid gray */
+  --color-soft: #F5F3EE;           /* Subtle warm gray for alt sections */
+  --color-border: #E5E2DC;         /* Warm light gray */
 
   --animate-fade-in: fade-in 0.5s ease-out;
   --animate-slide-up: slide-up 0.5s ease-out;
-  --animate-marquee: marquee 25s linear infinite;
+  --animate-marquee: marquee 28s linear infinite;
 
   @keyframes fade-in {
     from { opacity: 0; }
@@ -33,12 +34,12 @@
 }
 
 :root {
-  --background: #ffffff;
+  --background: #FFFFFF;
   --foreground: #111111;
-  --surface: #ffffff;
-  --muted: #6b6b6b;
-  --soft: #f7f5f0;
-  --border: #e9e6df;
+  --surface: #FFFFFF;
+  --muted: #6B6B6B;
+  --soft: #F5F3EE;
+  --border: #E5E2DC;
 }
 
 body {
@@ -47,64 +48,140 @@ body {
   font-family: var(--font-sans);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-serif);
   font-weight: 300;
   letter-spacing: -0.015em;
+  line-height: 1.05;
 }
 
+/* ─── Brand identity ─────────────────────────────────────────── */
 .luxury-text-gradient {
-  background: linear-gradient(to right, #8e6a00, #d4af37, #8e6a00);
+  background: linear-gradient(to right, #8e6a00, #d4af37 50%, #8e6a00);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
+/* ─── Buttons ────────────────────────────────────────────────── */
 .luxury-button {
-  @apply px-8 py-3 bg-[var(--foreground)] text-white font-medium tracking-widest text-xs uppercase transition-all duration-300 hover:bg-primary hover:text-white;
+  @apply inline-flex items-center justify-center px-9 py-3.5 bg-[var(--foreground)] text-white font-medium tracking-[0.3em] text-[10px] uppercase transition-all duration-300 hover:bg-primary;
 }
 
 .luxury-outline-button {
-  @apply px-8 py-3 border border-[var(--foreground)] text-[var(--foreground)] font-medium tracking-widest text-xs uppercase transition-all duration-300 hover:bg-[var(--foreground)] hover:text-white;
+  @apply inline-flex items-center justify-center px-9 py-3.5 border border-[var(--foreground)] text-[var(--foreground)] font-medium tracking-[0.3em] text-[10px] uppercase transition-all duration-300 hover:bg-[var(--foreground)] hover:text-white;
 }
 
+/* Nixon-style solid button on hero */
+.btn-cta {
+  @apply inline-flex items-center justify-center px-9 py-4 bg-white text-[var(--foreground)] font-medium tracking-[0.3em] text-[11px] uppercase transition-all duration-300 hover:bg-[var(--foreground)] hover:text-white;
+}
+
+.btn-link {
+  @apply inline-flex items-center gap-3 text-[10px] uppercase tracking-[0.4em] text-[var(--foreground)] border-b border-[var(--foreground)] pb-1 hover:text-primary hover:border-primary transition-colors;
+}
+
+/* Underline-on-hover for nav links — Nixon hover effect */
+.nav-link {
+  @apply relative inline-flex items-center text-[11px] uppercase tracking-[0.3em] text-[var(--foreground)] transition-colors;
+}
+.nav-link::after {
+  content: '';
+  @apply absolute left-0 right-0 -bottom-1 h-px bg-[var(--foreground)] origin-center scale-x-0 transition-transform duration-300;
+}
+.nav-link:hover::after {
+  @apply scale-x-100;
+}
+
+/* ─── Typography utilities ───────────────────────────────────── */
 .eyebrow {
-  @apply text-[10px] uppercase tracking-[0.4em] text-primary font-medium;
+  @apply inline-block text-[10px] uppercase tracking-[0.5em] text-primary font-medium;
+}
+
+.eyebrow-muted {
+  @apply inline-block text-[10px] uppercase tracking-[0.5em] text-[var(--muted)] font-medium;
 }
 
 .section-title {
-  @apply text-4xl md:text-5xl font-serif text-[var(--foreground)] leading-tight;
+  @apply font-serif text-[var(--foreground)] leading-[1.05];
+  font-size: clamp(2.25rem, 4vw, 3.75rem);
+}
+
+.display-title {
+  @apply font-serif text-[var(--foreground)] leading-[1];
+  font-size: clamp(3rem, 6vw, 5.5rem);
+}
+
+.lead {
+  @apply text-[var(--muted)] font-light leading-relaxed;
+  font-size: clamp(0.95rem, 1.05vw, 1.075rem);
+}
+
+.numeral {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-feature-settings: "lnum" 0, "onum" 1;
+}
+
+/* ─── Section helpers ────────────────────────────────────────── */
+.section-spacing {
+  @apply py-24 md:py-32 lg:py-36;
+}
+
+.section-spacing-sm {
+  @apply py-16 md:py-20;
+}
+
+.section-eyebrow-row {
+  @apply flex items-center gap-4 mb-6;
+}
+
+.section-eyebrow-row::before {
+  content: '';
+  @apply w-12 h-px bg-primary;
+}
+
+.divider-thin {
+  @apply h-px bg-[var(--border)] w-full;
 }
 
 .divider-gold {
-  width: 40px;
-  height: 1px;
-  background: linear-gradient(to right, transparent, #a67c00, transparent);
-  margin: 1rem auto;
+  @apply h-px bg-primary;
+  width: 56px;
+  margin: 1.25rem 0;
 }
 
-/* Product tag pill */
+.divider-gold-center {
+  @apply h-px bg-primary mx-auto;
+  width: 56px;
+}
+
+.ornament {
+  @apply flex items-center justify-center gap-3 text-primary;
+}
+.ornament::before,
+.ornament::after {
+  content: '';
+  @apply h-px bg-primary;
+  width: 32px;
+}
+
 .pill {
-  @apply inline-block text-[9px] uppercase tracking-[0.3em] px-3 py-1 font-medium;
+  @apply inline-block text-[9px] uppercase tracking-[0.35em] px-3 py-1 font-medium;
 }
 
-/* Hide scrollbar utility for inner carousels */
+/* ─── Utility ────────────────────────────────────────────────── */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { scrollbar-width: none; }
 
-/* Global custom scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: #f1efe9;
-}
-::-webkit-scrollbar-thumb {
-  background: #c9a55a;
-  border-radius: 10px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #a67c00;
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--soft); }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--foreground); }
+
+::selection {
+  background: var(--foreground);
+  color: var(--background);
 }

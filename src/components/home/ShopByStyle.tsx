@@ -30,7 +30,7 @@ const STYLES = [
 
 const ShopByStyle = () => {
   return (
-    <section className="py-24 md:py-32 bg-white">
+    <section className="py-24 md:py-32 bg-[var(--soft)]">
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
           <span className="eyebrow">Curated by Character</span>
