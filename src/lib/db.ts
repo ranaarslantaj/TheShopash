@@ -4,6 +4,9 @@ import {
   getDoc,
   doc,
   addDoc,
+  updateDoc,
+  deleteDoc,
+  setDoc,
   query,
   where,
   orderBy,
@@ -11,7 +14,13 @@ import {
   Timestamp,
   QueryConstraint,
 } from 'firebase/firestore';
-import { db, isFirebaseConfigured } from './firebase';
+import {
+  ref as storageRef,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject,
+} from 'firebase/storage';
+import { db, storage, isFirebaseConfigured } from './firebase';
 import { MOCK_PRODUCTS } from './products';
 import { Product, WatchBrand, Gender } from '@/context/CartContext';
 
@@ -188,6 +197,182 @@ export const getOrdersByUserId = async (userId: string): Promise<Order[]> => {
   } catch (error) {
     console.error('Error fetching user orders:', error);
     return [];
+  }
+};
+
+// ─── Admin helpers ──────────────────────────────────────────────
+export interface OrderFilters {
+  status?: OrderStatus;
+  search?: string;
+}
+
+export const getAllOrders = async (filters: OrderFilters = {}): Promise<Order[]> => {
+  if (!isFirebaseConfigured || !db) {
+    let mock = readGuestOrders();
+    if (filters.status) mock = mock.filter((o) => o.status === filters.status);
+    if (filters.search) {
+      const q = filters.search.toLowerCase();
+      mock = mock.filter(
+        (o) =>
+          o.id?.toLowerCase().includes(q) ||
+          o.email?.toLowerCase().includes(q) ||
+          o.customerName?.toLowerCase().includes(q)
+      );
+    }
+    return mock;
+  }
+
+  try {
+    const constraints: QueryConstraint[] = [];
+    if (filters.status) constraints.push(where('status', '==', filters.status));
+    constraints.push(orderBy('createdAt', 'desc'));
+    const snap = await getDocs(query(collection(db, 'orders'), ...constraints));
+    let results = snap.docs
+      .filter((d) => d.id !== '_schema')
+      .map((d) => ({ id: d.id, ...d.data() })) as Order[];
+
+    if (filters.search) {
+      const q = filters.search.toLowerCase();
+      results = results.filter(
+        (o) =>
+          o.id?.toLowerCase().includes(q) ||
+          o.email?.toLowerCase().includes(q) ||
+          o.customerName?.toLowerCase().includes(q)
+      );
+    }
+    return results;
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    return [];
+  }
+};
+
+export const updateOrder = async (
+  orderId: string,
+  updates: Partial<Omit<Order, 'id' | 'createdAt'>>
+): Promise<void> => {
+  // Firestore rejects undefined values — strip them
+  const cleaned = Object.fromEntries(
+    Object.entries(updates).filter(([, v]) => v !== undefined)
+  ) as Partial<Omit<Order, 'id' | 'createdAt'>>;
+
+  if (!isFirebaseConfigured || !db) {
+    const orders = readGuestOrders();
+    const next = orders.map((o) =>
+      o.id === orderId ? { ...o, ...cleaned, updatedAt: new Date().toISOString() } : o
+    );
+    writeGuestOrders(next);
+    return;
+  }
+  try {
+    const ref = doc(db, 'orders', orderId);
+    await updateDoc(ref, {
+      ...cleaned,
+      updatedAt: serverTimestamp(),
+    });
+  } catch (error) {
+    console.error('Error updating order:', error);
+    throw error;
+  }
+};
+
+export const updateOrderStatus = async (orderId: string, status: OrderStatus): Promise<void> =>
+  updateOrder(orderId, { status });
+
+// ─── Product CRUD ───────────────────────────────────────────────
+const isReal = () => isFirebaseConfigured && !!db;
+
+export const createProduct = async (
+  productData: Omit<Product, 'id'>
+): Promise<string> => {
+  if (!isReal()) {
+    throw new Error('Firebase not configured. Cannot create products in offline mode.');
+  }
+  const cleaned = Object.fromEntries(
+    Object.entries(productData).filter(([, v]) => v !== undefined)
+  );
+  const docRef = await addDoc(collection(db!, 'products'), {
+    ...cleaned,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+  return docRef.id;
+};
+
+export const createProductWithId = async (
+  id: string,
+  productData: Omit<Product, 'id'>
+): Promise<void> => {
+  if (!isReal()) {
+    throw new Error('Firebase not configured. Cannot create products in offline mode.');
+  }
+  const cleaned = Object.fromEntries(
+    Object.entries(productData).filter(([, v]) => v !== undefined)
+  );
+  await setDoc(doc(db!, 'products', id), {
+    ...cleaned,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+};
+
+export const updateProduct = async (
+  id: string,
+  updates: Partial<Omit<Product, 'id'>>
+): Promise<void> => {
+  if (!isReal()) {
+    throw new Error('Firebase not configured. Cannot update products in offline mode.');
+  }
+  const cleaned = Object.fromEntries(
+    Object.entries(updates).filter(([, v]) => v !== undefined)
+  );
+  await updateDoc(doc(db!, 'products', id), {
+    ...cleaned,
+    updatedAt: serverTimestamp(),
+  });
+};
+
+export const deleteProduct = async (id: string): Promise<void> => {
+  if (!isReal()) {
+    throw new Error('Firebase not configured. Cannot delete products in offline mode.');
+  }
+  await deleteDoc(doc(db!, 'products', id));
+};
+
+// ─── Storage: product image upload ──────────────────────────────
+export interface UploadedImage {
+  url: string;
+  path: string; // storage path, used for deletion
+}
+
+export const uploadProductImage = async (
+  productId: string,
+  file: File
+): Promise<UploadedImage> => {
+  if (!storage) {
+    throw new Error(
+      'Firebase Storage is not configured. Enable Storage in your Firebase Console first.'
+    );
+  }
+  const ext = file.name.split('.').pop() || 'jpg';
+  const path = `products/${productId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  const ref = storageRef(storage, path);
+  await uploadBytes(ref, file, { contentType: file.type });
+  const url = await getDownloadURL(ref);
+  return { url, path };
+};
+
+export const deleteProductImage = async (urlOrPath: string): Promise<void> => {
+  if (!storage) return;
+  try {
+    // Accept either a full https URL (from getDownloadURL) or a storage path
+    const ref = urlOrPath.startsWith('http')
+      ? storageRef(storage, decodeURIComponent(urlOrPath.split('/o/')[1].split('?')[0]))
+      : storageRef(storage, urlOrPath);
+    await deleteObject(ref);
+  } catch (error: any) {
+    // Object may already be deleted or path may be external — non-fatal
+    console.warn('Could not delete image:', error?.code ?? error);
   }
 };
 

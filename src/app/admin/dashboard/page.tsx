@@ -104,8 +104,12 @@ export default function AdminDashboardPage() {
                 </tr>
               ) : (
                 recentOrders.map((order) => (
-                  <tr key={order.id} className="hover:bg-[#faf8f1] transition-colors">
-                    <td className="px-8 py-5 text-xs text-[var(--muted)] tracking-tighter font-mono">#{order.id.slice(0, 8)}</td>
+                  <tr
+                    key={order.id}
+                    className="hover:bg-[#faf8f1] transition-colors cursor-pointer"
+                    onClick={() => (window.location.href = `/admin/orders/${order.id}`)}
+                  >
+                    <td className="px-8 py-5 text-xs text-[var(--muted)] tracking-tighter font-mono">#{order.id.slice(0, 8).toUpperCase()}</td>
                     <td className="px-8 py-5">
                       <p className="text-sm text-[var(--foreground)]">{order.customerName}</p>
                       <p className="text-[10px] text-[var(--muted)]">{order.phone}</p>
