@@ -7,6 +7,7 @@ import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import AnnouncementBar from './AnnouncementBar';
+import Logo from './Logo';
 
 const BRANDS = [
   { name: 'Rolex', tagline: 'A Crown for Every Achievement' },
@@ -51,16 +52,56 @@ const Navbar = () => {
   const [openMenu, setOpenMenu] = useState<null | 'men' | 'women' | 'brands'>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
+  const [hidden, setHidden] = useState(false);
   const accountRef = useRef<HTMLDivElement>(null);
+  const lastScrollY = useRef(0);
 
   const { cartCount, openDrawer } = useCart();
   const { user, signOut } = useAuth();
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 40);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    let pending = false;
+    let raf = 0;
+
+    const tick = () => {
+      pending = false;
+      const current = window.scrollY;
+      const delta = current - lastScrollY.current;
+
+      setIsScrolled((prev) => {
+        const next = current > 40;
+        return prev === next ? prev : next;
+      });
+
+      setHidden((prev) => {
+        if (current < 80) return prev === false ? prev : false;
+        if (delta > 8) return prev === true ? prev : true;       // scrolling down
+        if (delta < -8) return prev === false ? prev : false;    // scrolling up
+        return prev;
+      });
+
+      lastScrollY.current = current;
+    };
+
+    const handleScroll = () => {
+      if (pending) return;
+      pending = true;
+      raf = requestAnimationFrame(tick);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
   }, []);
+
+  // Force the header to show whenever a menu/search/dropdown is open
+  useEffect(() => {
+    if (openMenu || searchOpen || accountOpen || isMobileMenuOpen) {
+      setHidden(false);
+    }
+  }, [openMenu, searchOpen, accountOpen, isMobileMenuOpen]);
 
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
@@ -81,19 +122,26 @@ const Navbar = () => {
 
   return (
     <>
-      <header className="sticky top-0 left-0 w-full z-50">
-        <AnnouncementBar />
+      <header className="fixed top-0 left-0 w-full z-50">
+        {/* Announcement bar — collapses on scroll-down */}
+        <div
+          className={`overflow-hidden transition-all duration-300 ease-out ${
+            hidden ? 'max-h-0 opacity-0' : 'max-h-12 opacity-100'
+          }`}
+        >
+          <AnnouncementBar />
+        </div>
 
         <nav
-          className={`w-full bg-white transition-shadow duration-300 ${
+          className={`relative w-full bg-white transition-shadow duration-300 ${
             isScrolled ? 'shadow-[0_1px_0_0_var(--border)]' : 'border-b border-[var(--border)]'
           }`}
           onMouseLeave={() => setOpenMenu(null)}
         >
-          {/* Single-row utility band */}
-          <div className="container mx-auto px-6 grid grid-cols-3 items-center py-4 lg:py-5">
-            {/* LEFT — utility links / mobile menu */}
-            <div className="flex items-center gap-6">
+          {/* Single unified row: logo · menu · icons */}
+          <div className="container mx-auto px-6 grid grid-cols-12 items-center py-4 lg:py-5 gap-4">
+            {/* LEFT — hamburger + logo */}
+            <div className="col-span-6 lg:col-span-3 flex items-center gap-3">
               <button
                 className="lg:hidden text-[var(--foreground)]"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -101,54 +149,68 @@ const Navbar = () => {
               >
                 <Menu className="w-5 h-5" />
               </button>
-
-              <button
-                onClick={() => setSearchOpen(!searchOpen)}
-                className="hidden lg:flex items-center gap-2 text-[11px] uppercase tracking-[0.3em] text-[var(--foreground)] hover:text-primary transition-colors"
-              >
-                <Search className="w-4 h-4" />
-                Search
-              </button>
-              <Link
-                href="/track"
-                className="hidden lg:inline-flex text-[11px] uppercase tracking-[0.3em] text-[var(--foreground)] hover:text-primary transition-colors"
-              >
-                Track Order
+              <Link href="/" className="flex items-center" aria-label="The Shopash — home">
+                <Logo variant="mark" className="h-12 md:h-16 w-auto" />
               </Link>
             </div>
 
-            {/* CENTER — wordmark */}
-            <Link href="/" className="flex justify-center">
-              <span className="text-2xl md:text-[26px] font-serif tracking-[0.4em] font-light text-[var(--foreground)]">
-                SHOP ASH
-              </span>
-            </Link>
+            {/* CENTER — nav menu (desktop only) */}
+            <ul className="hidden lg:flex justify-center items-center gap-7 col-span-6">
+              {NAV_LINKS.map((link) => {
+                if ('menu' in link && link.menu) {
+                  const menuKey = link.menu;
+                  return (
+                    <li key={link.label} className="relative" onMouseEnter={() => setOpenMenu(menuKey)}>
+                      <button className="nav-link flex items-center gap-1">
+                        {link.label} <ChevronDown className="w-3 h-3" />
+                      </button>
+                    </li>
+                  );
+                }
+                return (
+                  <li key={link.label} onMouseEnter={() => setOpenMenu(null)}>
+                    <Link href={link.href} className="nav-link">
+                      {link.label}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
 
-            {/* RIGHT — account + cart */}
-            <div className="flex items-center justify-end gap-4 lg:gap-6">
+            {/* RIGHT — icons only */}
+            <div className="col-span-6 lg:col-span-3 flex items-center justify-end gap-5 lg:gap-6">
+              {/* Search */}
               <button
                 onClick={() => setSearchOpen(!searchOpen)}
-                className="lg:hidden text-[var(--foreground)]"
+                className="text-[var(--foreground)] hover:text-primary transition-colors"
                 aria-label="Search"
               >
                 <Search className="w-5 h-5" />
               </button>
 
-              {/* Account dropdown */}
+              {/* Track order */}
+              <Link
+                href="/track"
+                className="hidden md:inline-flex text-[var(--foreground)] hover:text-primary transition-colors"
+                aria-label="Track order"
+              >
+                <Package className="w-5 h-5" />
+              </Link>
+
+              {/* Account */}
               <div className="relative" ref={accountRef}>
                 <button
                   onClick={() => setAccountOpen(!accountOpen)}
-                  className="flex items-center gap-2 text-[11px] uppercase tracking-[0.3em] text-[var(--foreground)] hover:text-primary transition-colors"
-                  aria-label="Account"
+                  className="flex items-center text-[var(--foreground)] hover:text-primary transition-colors"
+                  aria-label={user ? 'Account' : 'Sign in'}
                 >
                   {user ? (
                     <span className="w-7 h-7 rounded-full bg-[var(--foreground)] text-white flex items-center justify-center text-[11px] font-medium">
                       {userInitial}
                     </span>
                   ) : (
-                    <User className="w-5 h-5 text-[var(--foreground)]" />
+                    <User className="w-5 h-5" />
                   )}
-                  <span className="hidden lg:inline">{user ? 'Account' : 'Sign In'}</span>
                 </button>
 
                 <AnimatePresence>
@@ -221,43 +283,16 @@ const Navbar = () => {
             </div>
           </div>
 
-          {/* Main nav row (desktop) */}
-          <div className="hidden lg:block border-t border-[var(--border)]">
-            <div className="container mx-auto px-6">
-              <ul className="flex justify-center items-center gap-10 py-3.5">
-                {NAV_LINKS.map((link) => {
-                  const linkClass = 'nav-link';
-                  if ('menu' in link && link.menu) {
-                    const menuKey = link.menu;
-                    return (
-                      <li key={link.label} className="relative" onMouseEnter={() => setOpenMenu(menuKey)}>
-                        <button className={`${linkClass} flex items-center gap-1`}>
-                          {link.label} <ChevronDown className="w-3 h-3" />
-                        </button>
-                      </li>
-                    );
-                  }
-                  return (
-                    <li key={link.label} onMouseEnter={() => setOpenMenu(null)}>
-                      <Link href={link.href} className={linkClass}>
-                        {link.label}
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-
-            {/* Mega menu */}
-            <AnimatePresence>
-              {openMenu && (
-                <motion.div
-                  initial={{ opacity: 0, y: -8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
-                  transition={{ duration: 0.18 }}
-                  className="absolute left-0 right-0 top-full bg-white border-t border-[var(--border)] shadow-lg"
-                >
+          {/* Mega menu — sibling of the collapsing main nav, so it's not clipped */}
+          <AnimatePresence>
+            {openMenu && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.18 }}
+                className="absolute left-0 right-0 top-full bg-white border-t border-[var(--border)] shadow-lg"
+              >
                   <div className="container mx-auto px-6 py-10">
                     {openMenu === 'brands' && (
                       <div className="grid grid-cols-4 gap-x-8 gap-y-6">
@@ -320,7 +355,6 @@ const Navbar = () => {
                 </motion.div>
               )}
             </AnimatePresence>
-          </div>
 
           {/* Search overlay */}
           <AnimatePresence>
@@ -354,6 +388,10 @@ const Navbar = () => {
         </nav>
       </header>
 
+      {/* Spacer — reserves layout space so content sits under the fixed header.
+          Sized to match the expanded header (announcement bar + single nav row). */}
+      <div aria-hidden className="h-[112px] lg:h-[128px]" />
+
       {/* Mobile Menu */}
       <AnimatePresence>
         {isMobileMenuOpen && (
@@ -364,7 +402,9 @@ const Navbar = () => {
             className="lg:hidden fixed inset-0 z-[60] bg-white overflow-y-auto"
           >
             <div className="p-6 flex justify-between items-center border-b border-[var(--border)]">
-              <span className="text-xl font-serif tracking-[0.3em] text-[var(--foreground)]">SHOP ASH</span>
+              <Link href="/" onClick={() => setIsMobileMenuOpen(false)} aria-label="The Shopash — home">
+                <Logo variant="mark" className="h-10 w-auto" />
+              </Link>
               <button onClick={() => setIsMobileMenuOpen(false)}><X /></button>
             </div>
             <div className="p-6 space-y-8">

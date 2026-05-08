@@ -9,7 +9,7 @@ const STATS = [
 
 const StatsStrip = () => {
   return (
-    <section className="relative py-24 md:py-32 bg-[var(--foreground)] text-white overflow-hidden">
+    <section className="relative py-14 md:py-20 bg-[var(--foreground)] text-white overflow-hidden">
       {/* Background texture */}
       <div className="absolute inset-0 opacity-[0.08]">
         <img
@@ -20,20 +20,20 @@ const StatsStrip = () => {
       </div>
 
       <div className="container mx-auto px-6 relative">
-        <div className="text-center mb-16">
-          <span className="text-[10px] uppercase tracking-[0.5em] text-primary mb-4 block font-medium">Our Commitment</span>
-          <h2 className="text-4xl md:text-5xl font-serif leading-tight">
-            A House Built on <span className="luxury-text-gradient">Uncompromising Standards</span>
+        <div className="text-center mb-10">
+          <span className="text-[10px] uppercase tracking-[0.5em] text-primary mb-3 block font-medium">Our Commitment</span>
+          <h2 className="text-2xl md:text-3xl font-serif leading-tight">
+            Built on <span className="luxury-text-gradient">Uncompromising Standards</span>
           </h2>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-4">
           {STATS.map((s, i) => (
             <div
               key={i}
               className="text-center md:border-r md:border-white/10 md:last:border-r-0 py-4"
             >
-              <p className="text-5xl md:text-6xl font-serif text-white mb-3 luxury-text-gradient">
+              <p className="text-4xl md:text-5xl font-serif text-white mb-2 luxury-text-gradient">
                 {s.number}
               </p>
               <p className="text-[10px] uppercase tracking-[0.4em] text-white/70">{s.label}</p>

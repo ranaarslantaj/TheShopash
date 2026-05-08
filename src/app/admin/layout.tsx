@@ -16,6 +16,7 @@ import {
   X,
 } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
+import Logo from '@/components/layout/Logo';
 
 // Pages that should NOT be wrapped in the admin shell
 const PUBLIC_PATHS = ['/admin/seed'];
@@ -91,10 +92,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Sidebar Desktop */}
       <aside className="hidden lg:flex flex-col w-64 bg-white border-r border-[var(--border)] p-6">
         <div className="mb-12">
-          <Link href="/" className="text-xl font-serif tracking-widest luxury-text-gradient">
-            SHOP ASH
+          <Link href="/" className="inline-block" aria-label="The Shopash — home">
+            <Logo variant="mark" className="h-10 w-auto" />
           </Link>
-          <span className="block text-[10px] uppercase tracking-widest text-[var(--muted)] mt-1">
+          <span className="block text-[10px] uppercase tracking-widest text-[var(--muted)] mt-3">
             Admin Console
           </span>
         </div>
@@ -137,7 +138,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-[var(--border)] px-6 py-4 flex justify-between items-center">
-        <Link href="/" className="text-lg font-serif luxury-text-gradient">SHOP ASH</Link>
+        <Link href="/" aria-label="The Shopash — home"><Logo variant="mark" className="h-9 w-auto" /></Link>
         <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-[var(--foreground)]">
           {sidebarOpen ? <X /> : <Menu />}
         </button>

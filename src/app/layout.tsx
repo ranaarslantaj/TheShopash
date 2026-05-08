@@ -16,13 +16,17 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Shop Ash | Premium Luxury Watches",
+  title: "The Shopash | Premium Luxury Watches",
   description: "A curated house of the world's finest timepieces — Rolex, Rado, Patek Philippe, Omega, Cartier and more. For men and women who value the art of time.",
   openGraph: {
-    title: "Shop Ash | The Art of Timeless Elegance",
+    title: "The Shopash | The Art of Timeless Elegance",
     description: "Curated luxury watches by the world's most revered Maisons.",
     type: "website",
-  }
+  },
+  icons: {
+    icon: '/logo/logo-mark.png',
+    apple: '/logo/logo-mark.png',
+  },
 };
 
 export default function RootLayout({

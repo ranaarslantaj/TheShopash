@@ -97,7 +97,7 @@ const Hero = () => {
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      <div className="relative w-full overflow-hidden h-[88vh] md:h-[90vh] min-h-[640px] max-h-[880px]">
+      <div className="relative w-full overflow-hidden h-[72vh] md:h-[78vh] min-h-[560px] max-h-[760px]">
         {/* Background image with Ken Burns */}
         <AnimatePresence initial={false} mode="sync">
           <motion.div
@@ -120,7 +120,7 @@ const Hero = () => {
         <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/55 via-black/15 to-transparent" />
 
         {/* CONTENT */}
-        <div className="relative z-10 h-full container mx-auto px-6 md:px-12 grid grid-cols-12 gap-6 items-end pb-24 md:pb-28">
+        <div className="relative z-10 h-full container mx-auto px-6 md:px-12 grid grid-cols-12 gap-6 items-end pb-16 md:pb-20">
           <motion.div
             key={`c-${idx}`}
             initial={{ opacity: 0, y: 28 }}
@@ -128,38 +128,28 @@ const Hero = () => {
             transition={{ duration: 1, delay: 0.18, ease: [0.22, 1, 0.36, 1] }}
             className="col-span-12 lg:col-span-7 xl:col-span-6"
           >
-            <div className="flex items-center gap-4 mb-6">
-              <span className="font-serif italic text-white/60 text-lg numeral">{slide.serial}</span>
-              <span className="block w-12 h-px bg-primary" />
+            <div className="flex items-center gap-3 mb-4">
+              <span className="block w-10 h-px bg-primary" />
               <p className="text-[10px] uppercase tracking-[0.5em] text-white/85">{slide.eyebrow}</p>
             </div>
 
             <h1
-              className="font-serif text-white leading-[0.96] mb-7 whitespace-pre-line"
-              style={{ fontSize: 'clamp(3rem, 6.4vw, 6rem)', fontWeight: 300 }}
+              className="font-serif text-white leading-[0.96] mb-5 whitespace-pre-line"
+              style={{ fontSize: 'clamp(2.5rem, 5.4vw, 5rem)', fontWeight: 300 }}
             >
               {slide.title}
             </h1>
 
-            <p className="text-white/80 max-w-lg mb-10 font-light leading-relaxed text-[15px] md:text-[17px]">
+            <p className="text-white/80 max-w-lg mb-7 font-light leading-relaxed text-[15px]">
               {slide.copy}
             </p>
 
-            <div className="flex items-center gap-6 flex-wrap">
-              <Link
-                href={slide.ctaHref}
-                className="inline-flex items-center justify-center bg-white text-[var(--foreground)] px-10 py-4 text-[11px] uppercase tracking-[0.4em] font-semibold hover:bg-primary hover:text-white transition-colors"
-              >
-                {slide.cta}
-              </Link>
-              <Link
-                href="/about"
-                className="group inline-flex items-center gap-3 text-white text-[11px] uppercase tracking-[0.4em] hover:text-primary transition-colors"
-              >
-                Our Story
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </Link>
-            </div>
+            <Link
+              href={slide.ctaHref}
+              className="inline-flex items-center justify-center bg-white text-[var(--foreground)] px-9 py-3.5 text-[11px] uppercase tracking-[0.4em] font-semibold hover:bg-primary hover:text-white transition-colors"
+            >
+              {slide.cta}
+            </Link>
           </motion.div>
 
           {/* Featured piece card — bottom right */}

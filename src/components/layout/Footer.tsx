@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Mail, Phone, MapPin } from 'lucide-react';
+import Logo from './Logo';
 
 const InstagramIcon = (p: React.SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" {...p}>
@@ -23,12 +24,14 @@ const YoutubeIcon = (p: React.SVGProps<SVGSVGElement>) => (
 
 const Footer = () => {
   return (
-    <footer className="bg-[var(--foreground)] text-white pt-20 pb-10">
+    <footer className="bg-[var(--foreground)] text-white pt-12 pb-8">
       <div className="container mx-auto px-6">
         {/* Top - Brand and Newsletter */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 pb-16 border-b border-white/10">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 pb-10 border-b border-white/10">
           <div className="lg:col-span-1 space-y-6">
-            <h3 className="text-2xl font-serif luxury-text-gradient tracking-[0.3em]">SHOP ASH</h3>
+            <Link href="/" className="inline-block" aria-label="The Shopash — home">
+              <Logo variant="full" className="h-20 w-auto brightness-110" />
+            </Link>
             <p className="text-sm text-white/60 leading-relaxed font-light max-w-sm">
               A curated house of the world&apos;s finest timepieces. Authenticated, serviced, and delivered worldwide with the reverence the craft demands.
             </p>
@@ -67,7 +70,7 @@ const Footer = () => {
         </div>
 
         {/* Middle - Link columns */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-10 py-16 border-b border-white/10">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-8 py-10 border-b border-white/10">
           <div className="space-y-5">
             <h5 className="text-[10px] uppercase tracking-[0.4em] text-primary">Shop</h5>
             <ul className="space-y-3">

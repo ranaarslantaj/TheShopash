@@ -7,6 +7,7 @@ import { auth, isFirebaseConfigured } from '@/lib/firebase';
 import { isAdmin } from '@/lib/admin';
 import { Loader2, Lock, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import Logo from '@/components/layout/Logo';
 
 function AdminLoginForm() {
   const router = useRouter();
@@ -62,11 +63,8 @@ function AdminLoginForm() {
   return (
     <main className="min-h-screen bg-[var(--soft)] flex items-center justify-center px-6 py-12">
       <div className="w-full max-w-md">
-        <Link href="/" className="block text-center mb-10">
-          <span className="text-2xl font-serif tracking-[0.3em] luxury-text-gradient font-light">SHOP ASH</span>
-          <span className="block text-[10px] uppercase tracking-[0.5em] text-[var(--muted)] mt-2">
-            Maison de Horlogerie
-          </span>
+        <Link href="/" className="flex flex-col items-center mb-10" aria-label="The Shopash — home">
+          <Logo variant="full" className="h-24 w-auto" />
         </Link>
 
         <div className="bg-white border border-[var(--border)] p-10 shadow-sm">

@@ -40,16 +40,17 @@ const FeaturedProducts = () => {
   }, [products, activeTab]);
 
   return (
-    <section className="py-24 md:py-32 bg-[var(--soft)]">
+    <section className="py-14 md:py-20 bg-[var(--soft)]">
       <div className="container mx-auto px-6">
-        <div className="text-center mb-12">
-          <span className="eyebrow">The Selection</span>
-          <h2 className="section-title mt-4">Featured Timepieces</h2>
-          <div className="divider-gold" />
+        <div className="text-center mb-8">
+          <span className="eyebrow">Featured</span>
+          <h2 className="font-serif text-[var(--foreground)] mt-2" style={{ fontSize: 'clamp(1.75rem, 3vw, 2.5rem)' }}>
+            Timepieces in Focus
+          </h2>
         </div>
 
         {/* Tabs */}
-        <div className="flex justify-center flex-wrap gap-2 md:gap-10 mb-14 border-b border-[var(--border)]">
+        <div className="flex justify-center flex-wrap gap-2 md:gap-10 mb-10 border-b border-[var(--border)]">
           {TABS.map((t) => (
             <button
               key={t.key}
@@ -82,10 +83,10 @@ const FeaturedProducts = () => {
           </div>
         )}
 
-        <div className="text-center mt-14">
+        <div className="text-center mt-10">
           <Link
             href="/shop"
-            className="inline-block text-xs uppercase tracking-[0.4em] text-[var(--foreground)] border-b border-[var(--foreground)] pb-1 hover:text-primary hover:border-primary transition-colors"
+            className="inline-block text-[10px] uppercase tracking-[0.4em] text-[var(--foreground)] border-b border-[var(--foreground)] pb-1 hover:text-primary hover:border-primary transition-colors"
           >
             View All Timepieces
           </Link>

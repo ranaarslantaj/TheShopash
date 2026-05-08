@@ -27,12 +27,14 @@ const ARTICLES = [
 
 const EditorialRow = () => {
   return (
-    <section className="py-24 md:py-32 bg-white">
+    <section className="py-14 md:py-20 bg-[var(--soft)]">
       <div className="container mx-auto px-6">
-        <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-16">
+        <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-10">
           <div>
             <span className="eyebrow">The Journal</span>
-            <h2 className="section-title mt-4 text-left">Stories from the Maison</h2>
+            <h2 className="font-serif text-[var(--foreground)] mt-2 text-left" style={{ fontSize: 'clamp(1.75rem, 3vw, 2.5rem)' }}>
+              Stories from the Maison
+            </h2>
           </div>
           <Link
             href="/about"
@@ -42,24 +44,20 @@ const EditorialRow = () => {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6">
           {ARTICLES.map((a, i) => (
             <article key={i} className="group cursor-pointer">
-              <div className="aspect-[4/5] overflow-hidden mb-6">
+              <div className="aspect-[4/5] overflow-hidden mb-4">
                 <img
                   src={a.image}
                   alt={a.title}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
               </div>
-              <p className="text-[10px] uppercase tracking-[0.4em] text-primary mb-3">{a.category}</p>
-              <h3 className="text-2xl font-serif text-[var(--foreground)] mb-3 leading-tight group-hover:text-primary transition-colors">
+              <p className="text-[10px] uppercase tracking-[0.4em] text-primary mb-2">{a.category}</p>
+              <h3 className="text-lg md:text-xl font-serif text-[var(--foreground)] leading-tight group-hover:text-primary transition-colors">
                 {a.title}
               </h3>
-              <p className="text-sm text-[var(--muted)] font-light leading-relaxed">{a.copy}</p>
-              <span className="inline-block mt-5 text-[10px] uppercase tracking-[0.4em] text-[var(--foreground)] border-b border-[var(--foreground)] pb-1 group-hover:text-primary group-hover:border-primary transition-colors">
-                Continue Reading
-              </span>
             </article>
           ))}
         </div>
