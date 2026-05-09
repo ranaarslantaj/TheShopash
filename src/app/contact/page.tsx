@@ -4,8 +4,10 @@ import React, { useState } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { MessageCircle, Mail, Phone, MapPin, Send } from 'lucide-react';
+import { useSiteSettings } from '@/lib/useSiteSettings';
 
 export default function ContactPage() {
+  const settings = useSiteSettings();
   const [form, setForm] = useState({ name: '', email: '', message: '' });
   const [sent, setSent] = useState(false);
 
@@ -38,26 +40,26 @@ export default function ContactPage() {
                   <Phone className="w-5 h-5 text-primary mt-1" />
                   <div>
                     <p className="text-[var(--foreground)] text-sm font-medium">Phone</p>
-                    <p className="text-[var(--muted)] text-sm">+92 300 1234567</p>
+                    <p className="text-[var(--muted)] text-sm">{settings.phone}</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
                   <Mail className="w-5 h-5 text-primary mt-1" />
                   <div>
                     <p className="text-[var(--foreground)] text-sm font-medium">Email</p>
-                    <p className="text-[var(--muted)] text-sm">concierge@shopash.com</p>
+                    <p className="text-[var(--muted)] text-sm">{settings.email}</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
                   <MapPin className="w-5 h-5 text-primary mt-1" />
                   <div>
                     <p className="text-[var(--foreground)] text-sm font-medium">Address</p>
-                    <p className="text-[var(--muted)] text-sm">Luxury Avenue, Karachi, Pakistan</p>
+                    <p className="text-[var(--muted)] text-sm">{settings.address}</p>
                   </div>
                 </div>
               </div>
               <a
-                href="https://wa.me/923001234567"
+                href={`https://wa.me/${settings.whatsapp}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-3 px-8 py-3 bg-green-600 text-white font-medium text-sm hover:bg-green-700 transition-colors"

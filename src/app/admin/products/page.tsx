@@ -11,6 +11,7 @@ import {
   Loader2,
   AlertCircle,
   Image as ImageIcon,
+  Upload,
 } from 'lucide-react';
 import { getProducts, deleteProduct } from '@/lib/db';
 import { Product, WatchBrand, Gender, WatchStyle } from '@/context/CartContext';
@@ -19,13 +20,12 @@ import { formatPrice } from '@/lib/utils';
 const BRANDS: (WatchBrand | 'All')[] = [
   'All',
   'Rolex',
-  'Patek Philippe',
-  'Audemars Piguet',
-  'Omega',
-  'Rado',
-  'Cartier',
-  'Tag Heuer',
+  'Tomi',
   'Tissot',
+  'Cartier',
+  'Casio',
+  'Seiko',
+  'Other',
 ];
 const GENDERS: (Gender | 'All')[] = ['All', 'Men', 'Women', 'Unisex'];
 const STYLES: (WatchStyle | 'All')[] = ['All', 'Dress', 'Sport', 'Diver', 'Chronograph'];
@@ -110,12 +110,20 @@ export default function AdminProductsPage() {
             {loading ? 'Loading…' : `${products.length} total · ${filtered.length} shown`}
           </p>
         </div>
-        <Link
-          href="/admin/products/new"
-          className="inline-flex items-center gap-2 bg-[var(--foreground)] text-white px-6 py-3 text-[11px] uppercase tracking-[0.3em] hover:bg-primary transition-colors"
-        >
-          <Plus className="w-4 h-4" /> Add product
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/admin/products/import"
+            className="inline-flex items-center gap-2 border border-[var(--foreground)] text-[var(--foreground)] px-5 py-3 text-[11px] uppercase tracking-[0.3em] hover:bg-[var(--foreground)] hover:text-white transition-colors"
+          >
+            <Upload className="w-3.5 h-3.5" /> Import CSV
+          </Link>
+          <Link
+            href="/admin/products/new"
+            className="inline-flex items-center gap-2 bg-[var(--foreground)] text-white px-6 py-3 text-[11px] uppercase tracking-[0.3em] hover:bg-primary transition-colors"
+          >
+            <Plus className="w-4 h-4" /> Add product
+          </Link>
+        </div>
       </header>
 
       {/* Stats */}

@@ -14,6 +14,7 @@ import {
   LogOut,
   Menu,
   X,
+  Users,
 } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
 import Logo from '@/components/layout/Logo';
@@ -80,8 +81,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const menuItems = [
     { name: 'Overview', href: '/admin/dashboard', icon: LayoutDashboard },
-    { name: 'Products', href: '/admin/products', icon: Package },
     { name: 'Orders', href: '/admin/orders', icon: ShoppingBag },
+    { name: 'Products', href: '/admin/products', icon: Package },
+    { name: 'Customers', href: '/admin/customers', icon: Users },
     { name: 'Settings', href: '/admin/settings', icon: Settings },
   ];
 
@@ -137,46 +139,106 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </aside>
 
       {/* Mobile Header */}
-      <div className="lg:hidden fixed top-0 left-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-[var(--border)] px-6 py-4 flex justify-between items-center">
-        <Link href="/" aria-label="The Shopash — home"><Logo variant="mark" className="h-9 w-auto" /></Link>
-        <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-[var(--foreground)]">
-          {sidebarOpen ? <X /> : <Menu />}
+      <div className="lg:hidden fixed top-0 left-0 w-full z-50 bg-white/95 backdrop-blur-md border-b border-[var(--border)] px-5 py-3 flex justify-between items-center">
+        <button
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          className="text-[var(--foreground)] -ml-1 p-1"
+          aria-label={sidebarOpen ? 'Close menu' : 'Open menu'}
+        >
+          {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
+        <Link href="/" aria-label="The Shopash — home" className="flex items-center">
+          <Logo variant="mark" className="h-9 w-auto" />
+        </Link>
+        <span className="w-9 h-9 rounded-full bg-primary text-white flex items-center justify-center text-xs font-medium" aria-hidden>
+          {initial}
+        </span>
       </div>
 
       {/* Content Area */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-hidden pt-16 lg:pt-0">
-        <div className="flex-1 overflow-y-auto p-6 lg:p-12">{children}</div>
+      <main className="flex-1 flex flex-col min-w-0 overflow-hidden pt-14 lg:pt-0">
+        <div className="flex-1 overflow-y-auto p-5 sm:p-6 lg:p-12">{children}</div>
       </main>
 
       {/* Mobile Menu Overlay */}
       {sidebarOpen && (
-        <div className="lg:hidden fixed inset-0 z-40 bg-white p-12 flex flex-col">
-          <button onClick={() => setSidebarOpen(false)} className="absolute top-6 right-6 text-[var(--foreground)] text-2xl">
-            <X />
-          </button>
-          <div className="space-y-8 mt-12">
-            {menuItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setSidebarOpen(false)}
-                className="flex items-center gap-6 text-2xl font-serif text-[var(--foreground)] hover:text-primary"
-              >
-                <item.icon className="w-6 h-6 text-primary" />
-                {item.name}
+        <>
+          {/* Backdrop */}
+          <button
+            aria-label="Close menu"
+            onClick={() => setSidebarOpen(false)}
+            className="lg:hidden fixed inset-0 z-40 bg-black/40 backdrop-blur-sm animate-[fade-in_0.2s_ease-out]"
+          />
+          {/* Drawer */}
+          <aside className="lg:hidden fixed top-0 left-0 bottom-0 w-[86%] max-w-[340px] z-50 bg-white shadow-2xl flex flex-col animate-[slide-in-left_0.3s_ease-out]">
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border)]">
+              <Link href="/" onClick={() => setSidebarOpen(false)} aria-label="Home">
+                <Logo variant="mark" className="h-8 w-auto" />
               </Link>
-            ))}
+              <button
+                onClick={() => setSidebarOpen(false)}
+                className="text-[var(--foreground)] p-1"
+                aria-label="Close menu"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* User card */}
+            <div className="flex items-center gap-3 px-5 py-4 border-b border-[var(--border)]">
+              <span className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center text-sm font-medium shrink-0">
+                {initial}
+              </span>
+              <div className="min-w-0">
+                <p className="text-sm text-[var(--foreground)] truncate">
+                  {user.displayName || 'Admin'}
+                </p>
+                <p className="text-[10px] text-[var(--muted)] truncate">{user.email}</p>
+              </div>
+            </div>
+
+            {/* Nav items */}
+            <nav className="flex-1 overflow-y-auto py-2">
+              {menuItems.map((item) => {
+                const active = pathname === item.href || pathname.startsWith(item.href + '/');
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setSidebarOpen(false)}
+                    className={`flex items-center gap-4 px-5 py-3.5 text-sm transition-colors ${
+                      active
+                        ? 'bg-primary/10 text-primary border-l-2 border-primary'
+                        : 'text-[var(--foreground)]/85 hover:bg-[var(--soft)] border-l-2 border-transparent'
+                    }`}
+                  >
+                    <item.icon className="w-4 h-4" />
+                    {item.name}
+                  </Link>
+                );
+              })}
+            </nav>
+
+            {/* Sign out */}
             <button
               onClick={handleSignOut}
-              className="flex items-center gap-6 text-2xl font-serif text-[var(--muted)] pt-8 border-t border-[var(--border)] w-full"
+              className="flex items-center gap-4 px-5 py-4 text-sm text-[var(--muted)] hover:text-red-500 border-t border-[var(--border)] transition-colors text-left"
             >
-              <LogOut className="w-6 h-6" />
+              <LogOut className="w-4 h-4" />
               Sign Out
             </button>
-          </div>
-        </div>
+          </aside>
+        </>
       )}
+
+      {/* Slide-in keyframe (Tailwind doesn't ship a left-side variant) */}
+      <style jsx>{`
+        @keyframes slide-in-left {
+          from { transform: translateX(-100%); }
+          to { transform: translateX(0); }
+        }
+      `}</style>
     </div>
   );
 }

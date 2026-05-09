@@ -17,7 +17,7 @@ const playfair = Playfair_Display({
 
 export const metadata: Metadata = {
   title: "The Shopash | Premium Luxury Watches",
-  description: "A curated house of the world's finest timepieces — Rolex, Rado, Patek Philippe, Omega, Cartier and more. For men and women who value the art of time.",
+  description: "A curated house of timepieces — Rolex, Tomi, Tissot, Cartier, Casio, Seiko and more. For men and women who value the art of time.",
   openGraph: {
     title: "The Shopash | The Art of Timeless Elegance",
     description: "Curated luxury watches by the world's most revered Maisons.",

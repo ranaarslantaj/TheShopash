@@ -13,6 +13,7 @@ import {
   onAuthStateChanged,
 } from 'firebase/auth';
 import { auth, isFirebaseConfigured } from '@/lib/firebase';
+import { ensureUserDoc } from '@/lib/db';
 
 interface AuthContextType {
   user: User | null;
@@ -45,9 +46,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(false);
       return;
     }
-    const unsub = onAuthStateChanged(auth, (u) => {
+    const unsub = onAuthStateChanged(auth, async (u) => {
       setUser(u);
       setLoading(false);
+      // Idempotently ensure a users/{uid} document exists for every signed-in user.
+      // Safe to call on every auth-state change — internally a no-op for unchanged docs.
+      if (u) {
+        ensureUserDoc({
+          uid: u.uid,
+          email: u.email,
+          displayName: u.displayName,
+          photoURL: u.photoURL,
+          phone: u.phoneNumber,
+        });
+      }
     });
     return () => unsub();
   }, []);

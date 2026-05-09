@@ -14,6 +14,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { getAllOrders, Order, OrderStatus, formatOrderDate } from '@/lib/db';
+import { courierLabel } from '@/lib/couriers';
 import { formatPrice } from '@/lib/utils';
 import StatusPill from '@/components/account/StatusPill';
 
@@ -195,6 +196,11 @@ export default function AdminOrdersPage() {
                     </td>
                     <td className="px-6 py-4">
                       <StatusPill status={o.status} />
+                      {o.courier && o.courier !== 'other' && o.trackingNumber && (
+                        <p className="text-[9px] uppercase tracking-[0.3em] text-[var(--muted)] mt-1.5">
+                          {courierLabel(o.courier)}
+                        </p>
+                      )}
                     </td>
                     <td className="px-6 py-4 hidden lg:table-cell text-xs text-[var(--muted)]">
                       {formatOrderDate(o.createdAt)}

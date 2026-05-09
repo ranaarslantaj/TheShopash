@@ -5,13 +5,12 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 export type Gender = 'Men' | 'Women' | 'Unisex';
 export type WatchBrand =
   | 'Rolex'
-  | 'Rado'
-  | 'Omega'
-  | 'Patek Philippe'
-  | 'Audemars Piguet'
-  | 'Tag Heuer'
+  | 'Tomi'
+  | 'Tissot'
   | 'Cartier'
-  | 'Tissot';
+  | 'Casio'
+  | 'Seiko'
+  | 'Other';
 export type WatchStyle = 'Dress' | 'Sport' | 'Diver' | 'Chronograph';
 export type ProductTag = 'new' | 'bestseller' | 'editors-pick' | 'rare';
 

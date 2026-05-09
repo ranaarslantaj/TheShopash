@@ -7,8 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "setup-firebase": "node scripts/setup-firebase.mjs",
-    "create-admin": "node scripts/create-admin.mjs"
+    "setup-firebase": "node scripts/setup-firebase.mjs"
   },
   "dependencies": {
     "clsx": "^2.1.1",

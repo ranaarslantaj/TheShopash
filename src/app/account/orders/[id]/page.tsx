@@ -6,6 +6,7 @@ import { useParams } from 'next/navigation';
 import AccountShell from '@/components/account/AccountShell';
 import StatusPill from '@/components/account/StatusPill';
 import OrderTimeline from '@/components/account/OrderTimeline';
+import TrackingCard from '@/components/account/TrackingCard';
 import { getOrderById, Order, formatOrderDate } from '@/lib/db';
 import { useAuth } from '@/context/AuthContext';
 import { formatPrice } from '@/lib/utils';
@@ -115,10 +116,7 @@ export default function OrderDetailPage() {
           </div>
 
           {order.trackingNumber && (
-            <div className="bg-primary/5 border border-primary/30 p-5 text-sm">
-              <p className="text-[10px] uppercase tracking-[0.3em] text-primary mb-1">Tracking Number</p>
-              <p className="font-mono text-[var(--foreground)]">{order.trackingNumber}</p>
-            </div>
+            <TrackingCard order={order} />
           )}
         </div>
       )}

@@ -5,7 +5,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'About | Shop Ash — The House of Horology',
-  description: 'Shop Ash is a curated house of luxury watches — Rolex, Rado, Patek Philippe, Omega and more. Every timepiece authenticated, serviced, and delivered worldwide.',
+  description: 'Shop Ash — a curated house of timepieces. Rolex, Tomi, Tissot, Cartier, Casio, Seiko and more. Every watch authenticated, serviced, and delivered worldwide.',
 };
 
 export default function AboutPage() {
@@ -55,7 +55,7 @@ export default function AboutPage() {
           <div className="border-t border-[var(--border)] pt-20">
             <h2 className="text-3xl font-serif text-[var(--foreground)] mb-12 text-center">The Maisons We Carry</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-              {['Rolex', 'Rado', 'Patek Philippe', 'Omega', 'Audemars Piguet', 'Cartier', 'Tag Heuer', 'Tissot'].map((brand) => (
+              {['Rolex', 'Tomi', 'Tissot', 'Cartier', 'Casio', 'Seiko'].map((brand) => (
                 <div key={brand} className="space-y-3">
                   <div className="w-16 h-16 mx-auto border border-primary/30 flex items-center justify-center">
                     <div className="w-2 h-2 bg-primary" />

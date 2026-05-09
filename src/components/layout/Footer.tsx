@@ -1,7 +1,10 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
 import { Mail, Phone, MapPin } from 'lucide-react';
 import Logo from './Logo';
+import { useSiteSettings } from '@/lib/useSiteSettings';
 
 const InstagramIcon = (p: React.SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" {...p}>
@@ -23,6 +26,7 @@ const YoutubeIcon = (p: React.SVGProps<SVGSVGElement>) => (
 );
 
 const Footer = () => {
+  const settings = useSiteSettings();
   return (
     <footer className="bg-[var(--foreground)] text-white pt-12 pb-8">
       <div className="container mx-auto px-6">
@@ -36,15 +40,21 @@ const Footer = () => {
               A curated house of the world&apos;s finest timepieces. Authenticated, serviced, and delivered worldwide with the reverence the craft demands.
             </p>
             <div className="flex items-center gap-4 pt-2">
-              <a href="#" className="w-9 h-9 border border-white/20 flex items-center justify-center text-white/70 hover:bg-primary hover:border-primary hover:text-white transition-colors" aria-label="Instagram">
-                <InstagramIcon className="w-4 h-4" />
-              </a>
-              <a href="#" className="w-9 h-9 border border-white/20 flex items-center justify-center text-white/70 hover:bg-primary hover:border-primary hover:text-white transition-colors" aria-label="Facebook">
-                <FacebookIcon className="w-4 h-4" />
-              </a>
-              <a href="#" className="w-9 h-9 border border-white/20 flex items-center justify-center text-white/70 hover:bg-primary hover:border-primary hover:text-white transition-colors" aria-label="YouTube">
-                <YoutubeIcon className="w-4 h-4" />
-              </a>
+              {settings.instagramUrl && (
+                <a href={settings.instagramUrl} target="_blank" rel="noopener" className="w-9 h-9 border border-white/20 flex items-center justify-center text-white/70 hover:bg-primary hover:border-primary hover:text-white transition-colors" aria-label="Instagram">
+                  <InstagramIcon className="w-4 h-4" />
+                </a>
+              )}
+              {settings.facebookUrl && (
+                <a href={settings.facebookUrl} target="_blank" rel="noopener" className="w-9 h-9 border border-white/20 flex items-center justify-center text-white/70 hover:bg-primary hover:border-primary hover:text-white transition-colors" aria-label="Facebook">
+                  <FacebookIcon className="w-4 h-4" />
+                </a>
+              )}
+              {settings.youtubeUrl && (
+                <a href={settings.youtubeUrl} target="_blank" rel="noopener" className="w-9 h-9 border border-white/20 flex items-center justify-center text-white/70 hover:bg-primary hover:border-primary hover:text-white transition-colors" aria-label="YouTube">
+                  <YoutubeIcon className="w-4 h-4" />
+                </a>
+              )}
             </div>
           </div>
 
@@ -86,11 +96,12 @@ const Footer = () => {
             <h5 className="text-[10px] uppercase tracking-[0.4em] text-primary">The Maisons</h5>
             <ul className="space-y-3">
               <li><Link href="/shop?brand=Rolex" className="text-sm text-white/70 hover:text-primary transition-colors">Rolex</Link></li>
-              <li><Link href="/shop?brand=Patek%20Philippe" className="text-sm text-white/70 hover:text-primary transition-colors">Patek Philippe</Link></li>
-              <li><Link href="/shop?brand=Audemars%20Piguet" className="text-sm text-white/70 hover:text-primary transition-colors">Audemars Piguet</Link></li>
-              <li><Link href="/shop?brand=Omega" className="text-sm text-white/70 hover:text-primary transition-colors">Omega</Link></li>
-              <li><Link href="/shop?brand=Rado" className="text-sm text-white/70 hover:text-primary transition-colors">Rado</Link></li>
+              <li><Link href="/shop?brand=Tomi" className="text-sm text-white/70 hover:text-primary transition-colors">Tomi</Link></li>
+              <li><Link href="/shop?brand=Tissot" className="text-sm text-white/70 hover:text-primary transition-colors">Tissot</Link></li>
               <li><Link href="/shop?brand=Cartier" className="text-sm text-white/70 hover:text-primary transition-colors">Cartier</Link></li>
+              <li><Link href="/shop?brand=Casio" className="text-sm text-white/70 hover:text-primary transition-colors">Casio</Link></li>
+              <li><Link href="/shop?brand=Seiko" className="text-sm text-white/70 hover:text-primary transition-colors">Seiko</Link></li>
+              <li><Link href="/shop" className="text-sm text-white/70 hover:text-primary transition-colors">Other Brands</Link></li>
             </ul>
           </div>
 
@@ -121,15 +132,15 @@ const Footer = () => {
             <ul className="space-y-4 text-sm text-white/70 font-light">
               <li className="flex items-start gap-3">
                 <Phone className="w-4 h-4 text-primary mt-0.5 shrink-0" />
-                <span>+92 300 1234567</span>
+                <span>{settings.phone}</span>
               </li>
               <li className="flex items-start gap-3">
                 <Mail className="w-4 h-4 text-primary mt-0.5 shrink-0" />
-                <span>concierge@shopash.com</span>
+                <span>{settings.email}</span>
               </li>
               <li className="flex items-start gap-3">
                 <MapPin className="w-4 h-4 text-primary mt-0.5 shrink-0" />
-                <span>Luxury Avenue, Karachi, Pakistan</span>
+                <span>{settings.address}</span>
               </li>
             </ul>
           </div>

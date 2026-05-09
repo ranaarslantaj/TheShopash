@@ -9,7 +9,7 @@ const SeoBlock = () => {
           Pakistan&apos;s destination for authenticated luxury watches
         </h2>
         <p className="text-[var(--muted)] font-light leading-relaxed text-sm md:text-[15px]">
-          Curated timepieces from <span className="text-[var(--foreground)]">Rolex, Patek Philippe, Audemars Piguet, Omega, Rado, Cartier, Tag Heuer</span> and <span className="text-[var(--foreground)]">Tissot</span>. Authenticated by master watchmakers, serviced, documented, and delivered worldwide insured.
+          Curated timepieces from <span className="text-[var(--foreground)]">Rolex, Tomi, Tissot, Cartier, Casio</span> and <span className="text-[var(--foreground)]">Seiko</span> — and other carefully chosen brands. Authenticated, serviced, documented, and delivered worldwide insured.
         </p>
       </div>
     </section>

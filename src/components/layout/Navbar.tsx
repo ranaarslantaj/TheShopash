@@ -11,13 +11,12 @@ import Logo from './Logo';
 
 const BRANDS = [
   { name: 'Rolex', tagline: 'A Crown for Every Achievement' },
-  { name: 'Patek Philippe', tagline: 'Generations of Artistry' },
-  { name: 'Audemars Piguet', tagline: 'To Break the Rules' },
-  { name: 'Omega', tagline: 'Moonshots & Milestones' },
-  { name: 'Rado', tagline: 'Master of Materials' },
-  { name: 'Cartier', tagline: 'The Jeweller of Kings' },
-  { name: 'Tag Heuer', tagline: 'Swiss Avant-Garde' },
+  { name: 'Tomi', tagline: 'Modern. Bold. Accessible.' },
   { name: 'Tissot', tagline: 'Innovators Since 1853' },
+  { name: 'Cartier', tagline: 'The Jeweller of Kings' },
+  { name: 'Casio', tagline: 'Tough by Design' },
+  { name: 'Seiko', tagline: 'The Spirit of Japan' },
+  { name: 'Other Brands', tagline: 'Discover the full collection' },
 ];
 
 const MEN_LINKS = [
@@ -139,7 +138,7 @@ const Navbar = () => {
           onMouseLeave={() => setOpenMenu(null)}
         >
           {/* Single unified row: logo · menu · icons */}
-          <div className="container mx-auto px-6 grid grid-cols-12 items-center py-4 lg:py-5 gap-4">
+          <div className="container mx-auto px-6 grid grid-cols-12 items-center py-2 lg:py-3 gap-4">
             {/* LEFT — hamburger + logo */}
             <div className="col-span-6 lg:col-span-3 flex items-center gap-3">
               <button
@@ -299,7 +298,11 @@ const Navbar = () => {
                         {BRANDS.map((b) => (
                           <Link
                             key={b.name}
-                            href={`/shop?brand=${encodeURIComponent(b.name)}`}
+                            href={
+                              b.name === 'Other Brands'
+                                ? '/shop'
+                                : `/shop?brand=${encodeURIComponent(b.name)}`
+                            }
                             className="group"
                             onClick={() => setOpenMenu(null)}
                           >
@@ -390,7 +393,7 @@ const Navbar = () => {
 
       {/* Spacer — reserves layout space so content sits under the fixed header.
           Sized to match the expanded header (announcement bar + single nav row). */}
-      <div aria-hidden className="h-[112px] lg:h-[128px]" />
+      <div aria-hidden className="h-[96px] lg:h-[104px]" />
 
       {/* Mobile Menu */}
       <AnimatePresence>
@@ -419,7 +422,16 @@ const Navbar = () => {
               <div className="space-y-3 pt-6 border-t border-[var(--border)]">
                 <p className="eyebrow">The Maisons</p>
                 {BRANDS.map((b) => (
-                  <Link key={b.name} href={`/shop?brand=${encodeURIComponent(b.name)}`} onClick={() => setIsMobileMenuOpen(false)} className="block text-base text-[var(--foreground)]/80">
+                  <Link
+                    key={b.name}
+                    href={
+                      b.name === 'Other Brands'
+                        ? '/shop'
+                        : `/shop?brand=${encodeURIComponent(b.name)}`
+                    }
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="block text-base text-[var(--foreground)]/80"
+                  >
                     {b.name}
                   </Link>
                 ))}

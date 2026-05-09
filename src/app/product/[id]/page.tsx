@@ -8,12 +8,14 @@ import Footer from '@/components/layout/Footer';
 import ProductCard from '@/components/product/ProductCard';
 import { useCart, Product } from '@/context/CartContext';
 import { getProductById, getProducts } from '@/lib/db';
+import { useSiteSettings } from '@/lib/useSiteSettings';
 import { formatPrice } from '@/lib/utils';
 import { ShoppingCart, Zap, MessageCircle, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function ProductDetailPage() {
   const params = useParams();
+  const settings = useSiteSettings();
   const { addToCart } = useCart();
   const [product, setProduct] = React.useState<Product | null>(null);
   const [related, setRelated] = React.useState<Product[]>([]);
@@ -66,7 +68,7 @@ export default function ProductDetailPage() {
   const whatsappMsg = encodeURIComponent(
     `Hi, I'm interested in buying "${product.title}" (${product.brand}) from Shop Ash. Price: ${formatPrice(product.pricePKR, 'PKR')}`
   );
-  const whatsappUrl = `https://wa.me/923001234567?text=${whatsappMsg}`;
+  const whatsappUrl = `https://wa.me/${settings.whatsapp}?text=${whatsappMsg}`;
 
   return (
     <main>

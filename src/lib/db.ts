@@ -7,6 +7,7 @@ import {
   updateDoc,
   deleteDoc,
   setDoc,
+  runTransaction,
   query,
   where,
   orderBy,
@@ -52,6 +53,7 @@ export interface Order {
   totalPriceUSD: number;
   status: OrderStatus;
   paymentMethod: string;
+  courier?: import('./couriers').Courier;
   trackingNumber?: string;
   createdAt: any;
   updatedAt?: any;
@@ -116,6 +118,27 @@ export const getProductById = async (id: string): Promise<Product | null> => {
   }
 };
 
+// ─── Order ID format ────────────────────────────────────────────
+// Customer-facing IDs look like SA00001, SA00002, … — sequential, padded.
+// Internally each order uses this string as its Firestore document ID, so
+// URLs (/account/orders/SA00012, /track) and admin views all match.
+export const ORDER_ID_PREFIX = 'SA';
+export const ORDER_ID_PAD_LENGTH = 5;
+
+const formatOrderId = (n: number): string =>
+  `${ORDER_ID_PREFIX}${String(n).padStart(ORDER_ID_PAD_LENGTH, '0')}`;
+
+// Local counter for offline fallback (mirrors the Firestore counter doc).
+const LOCAL_COUNTER_KEY = 'shop-ash-order-counter';
+const readLocalCounter = (): number => {
+  if (typeof window === 'undefined') return 0;
+  return parseInt(localStorage.getItem(LOCAL_COUNTER_KEY) ?? '0', 10) || 0;
+};
+const writeLocalCounter = (n: number) => {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(LOCAL_COUNTER_KEY, String(n));
+};
+
 // Local guest-order log (so /track works without Firebase configured)
 const GUEST_ORDERS_KEY = 'shop-ash-guest-orders';
 
@@ -136,8 +159,11 @@ const writeGuestOrders = (orders: Order[]) => {
 export const createOrder = async (
   orderData: Omit<Order, 'id' | 'createdAt' | 'status' | 'updatedAt'>
 ): Promise<string> => {
+  // ─── Offline fallback (no Firebase) ──────────────────────────
   if (!isFirebaseConfigured || !db) {
-    const id = `LOCAL-${Date.now().toString(36).toUpperCase()}`;
+    const next = readLocalCounter() + 1;
+    writeLocalCounter(next);
+    const id = formatOrderId(next);
     const newOrder: Order = {
       id,
       ...orderData,
@@ -149,16 +175,46 @@ export const createOrder = async (
     return id;
   }
 
+  // ─── Atomic sequential ID via transaction ────────────────────
+  // Reads & increments meta/orderCounter, then writes the new order doc
+  // with id `SA00001` etc. — all in one atomic operation. Guarantees no
+  // duplicate IDs even with concurrent checkouts.
   try {
-    const ordersRef = collection(db, 'orders');
-    const newOrder = {
-      ...orderData,
-      status: 'pending' as OrderStatus,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    };
-    const docRef = await addDoc(ordersRef, newOrder);
-    return docRef.id;
+    const counterRef = doc(db, 'meta', 'orderCounter');
+    const orderId = await runTransaction(db, async (tx) => {
+      const counterSnap = await tx.get(counterRef);
+      const current = counterSnap.exists() ? (counterSnap.data().value ?? 0) : 0;
+      const next = current + 1;
+      const id = formatOrderId(next);
+
+      tx.set(counterRef, { value: next, updatedAt: serverTimestamp() }, { merge: true });
+      tx.set(doc(db!, 'orders', id), {
+        ...orderData,
+        status: 'pending' as OrderStatus,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+
+      return id;
+    });
+
+    // Fire-and-forget order confirmation email. We don't await it because
+    // email failure must not break checkout — the email layer logs errors.
+    void (async () => {
+      try {
+        const { sendOrderConfirmationEmail } = await import('./emails');
+        await sendOrderConfirmationEmail({
+          ...orderData,
+          id: orderId,
+          status: 'pending',
+          createdAt: new Date().toISOString(),
+        } as Order);
+      } catch (err) {
+        console.error('[Emails] Confirmation send failed:', err);
+      }
+    })();
+
+    return orderId;
   } catch (error) {
     console.error('Error creating order:', error);
     throw error;
@@ -266,10 +322,37 @@ export const updateOrder = async (
   }
   try {
     const ref = doc(db, 'orders', orderId);
+
+    // Read previous state so we can detect status transitions for emails
+    const previousSnap = await getDoc(ref);
+    const previous = previousSnap.exists()
+      ? ({ id: previousSnap.id, ...previousSnap.data() } as Order)
+      : null;
+
     await updateDoc(ref, {
       ...cleaned,
       updatedAt: serverTimestamp(),
     });
+
+    // Send a status-change email if status moved to a new actionable state
+    if (
+      previous &&
+      cleaned.status &&
+      cleaned.status !== previous.status &&
+      previous.email
+    ) {
+      void (async () => {
+        try {
+          const { sendOrderStatusEmail } = await import('./emails');
+          await sendOrderStatusEmail(
+            { ...previous, ...cleaned, id: orderId } as Order,
+            cleaned.status as OrderStatus
+          );
+        } catch (err) {
+          console.error('[Emails] Status email failed:', err);
+        }
+      })();
+    }
   } catch (error) {
     console.error('Error updating order:', error);
     throw error;
@@ -278,6 +361,155 @@ export const updateOrder = async (
 
 export const updateOrderStatus = async (orderId: string, status: OrderStatus): Promise<void> =>
   updateOrder(orderId, { status });
+
+// ─── Site settings ──────────────────────────────────────────────
+export interface SiteSettings {
+  announcement: string;
+  announcementEnabled: boolean;
+  email: string;
+  phone: string;
+  whatsapp: string; // digits only, country code first (no +)
+  address: string;
+  city: string;
+  instagramUrl: string;
+  facebookUrl: string;
+  youtubeUrl: string;
+  updatedAt?: any;
+}
+
+export const DEFAULT_SETTINGS: SiteSettings = {
+  announcement:
+    'Complimentary insured shipping worldwide · Authenticated by master watchmakers',
+  announcementEnabled: true,
+  email: 'concierge@shopash.com',
+  phone: '+92 300 1234567',
+  whatsapp: '923001234567',
+  address: 'Luxury Avenue, Karachi, Pakistan',
+  city: 'Karachi',
+  instagramUrl: '',
+  facebookUrl: '',
+  youtubeUrl: '',
+};
+
+export const getSiteSettings = async (): Promise<SiteSettings> => {
+  if (!isFirebaseConfigured || !db) return DEFAULT_SETTINGS;
+  try {
+    const snap = await getDoc(doc(db, 'settings', 'site'));
+    if (!snap.exists()) return DEFAULT_SETTINGS;
+    return { ...DEFAULT_SETTINGS, ...(snap.data() as Partial<SiteSettings>) };
+  } catch (error) {
+    console.error('Error fetching site settings:', error);
+    return DEFAULT_SETTINGS;
+  }
+};
+
+export const updateSiteSettings = async (updates: Partial<SiteSettings>): Promise<void> => {
+  if (!isFirebaseConfigured || !db) {
+    throw new Error('Firebase not configured. Cannot save settings in offline mode.');
+  }
+  const cleaned = Object.fromEntries(
+    Object.entries(updates).filter(([, v]) => v !== undefined)
+  );
+  await setDoc(
+    doc(db, 'settings', 'site'),
+    { ...cleaned, updatedAt: serverTimestamp() },
+    { merge: true }
+  );
+};
+
+// ─── Customers ──────────────────────────────────────────────────
+export type UserRole = 'customer' | 'admin';
+
+export interface Customer {
+  id: string; // == Firebase Auth UID
+  email: string;
+  displayName?: string;
+  photoURL?: string;
+  phone?: string;
+  role: UserRole;
+  createdAt?: any;
+  updatedAt?: any;
+  lastSignInAt?: any;
+}
+
+/**
+ * Idempotently upserts the users/{uid} document.
+ * Called on every auth state change so customer records always exist.
+ */
+export const ensureUserDoc = async (params: {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+  photoURL?: string | null;
+  phone?: string | null;
+}): Promise<void> => {
+  if (!isFirebaseConfigured || !db) return;
+  const ref = doc(db, 'users', params.uid);
+  try {
+    const snap = await getDoc(ref);
+    if (snap.exists()) {
+      // Update last sign-in timestamp + refresh display fields
+      await setDoc(
+        ref,
+        {
+          email: params.email ?? snap.data()?.email ?? '',
+          displayName: params.displayName ?? snap.data()?.displayName ?? '',
+          photoURL: params.photoURL ?? snap.data()?.photoURL ?? '',
+          lastSignInAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        },
+        { merge: true }
+      );
+    } else {
+      // First time we see this user — create with default customer role
+      await setDoc(ref, {
+        email: params.email ?? '',
+        displayName: params.displayName ?? '',
+        photoURL: params.photoURL ?? '',
+        phone: params.phone ?? '',
+        role: 'customer' as UserRole,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        lastSignInAt: serverTimestamp(),
+      });
+    }
+  } catch (error) {
+    console.error('ensureUserDoc failed:', error);
+  }
+};
+
+export const getAllCustomers = async (): Promise<Customer[]> => {
+  if (!isFirebaseConfigured || !db) return [];
+  try {
+    const snap = await getDocs(query(collection(db, 'users'), orderBy('createdAt', 'desc')));
+    return snap.docs
+      .filter((d) => d.id !== '_schema' && !d.data()?._placeholder)
+      .map((d) => ({ id: d.id, ...d.data() })) as Customer[];
+  } catch {
+    // Fallback if orderBy('createdAt') fails because some docs lack the field
+    try {
+      const snap = await getDocs(collection(db!, 'users'));
+      return snap.docs
+        .filter((d) => d.id !== '_schema' && !d.data()?._placeholder)
+        .map((d) => ({ id: d.id, ...d.data() })) as Customer[];
+    } catch (error) {
+      console.error('Error fetching customers:', error);
+      return [];
+    }
+  }
+};
+
+export const getCustomerById = async (uid: string): Promise<Customer | null> => {
+  if (!isFirebaseConfigured || !db) return null;
+  try {
+    const snap = await getDoc(doc(db, 'users', uid));
+    if (!snap.exists()) return null;
+    return { id: snap.id, ...snap.data() } as Customer;
+  } catch (error) {
+    console.error('Error fetching customer:', error);
+    return null;
+  }
+};
 
 // ─── Product CRUD ───────────────────────────────────────────────
 const isReal = () => isFirebaseConfigured && !!db;

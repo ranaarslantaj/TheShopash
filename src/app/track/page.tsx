@@ -5,6 +5,7 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import StatusPill from '@/components/account/StatusPill';
 import OrderTimeline from '@/components/account/OrderTimeline';
+import TrackingCard from '@/components/account/TrackingCard';
 import { getOrderById, Order, formatOrderDate } from '@/lib/db';
 import { formatPrice } from '@/lib/utils';
 import { Loader2, Search, Package } from 'lucide-react';
@@ -136,6 +137,8 @@ export default function TrackOrderPage() {
                 </div>
               </section>
 
+              {order.trackingNumber && <TrackingCard order={order} />}
+
               <div className="bg-[var(--soft)] border border-[var(--border)] p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <h3 className="font-serif text-base text-[var(--foreground)] mb-3">Shipping To</h3>
@@ -149,12 +152,6 @@ export default function TrackOrderPage() {
                   <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--muted)] mt-1">
                     {order.paymentMethod}
                   </p>
-                  {order.trackingNumber && (
-                    <div className="mt-4 pt-4 border-t border-[var(--border)]">
-                      <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--muted)]">Tracking Number</p>
-                      <p className="font-mono text-sm text-[var(--foreground)] mt-1">{order.trackingNumber}</p>
-                    </div>
-                  )}
                 </div>
               </div>
             </div>

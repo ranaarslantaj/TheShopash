@@ -14,13 +14,12 @@ type SortOption = 'latest' | 'low-high' | 'high-low';
 
 const BRANDS: WatchBrand[] = [
   'Rolex',
-  'Patek Philippe',
-  'Audemars Piguet',
-  'Omega',
-  'Rado',
-  'Cartier',
-  'Tag Heuer',
+  'Tomi',
   'Tissot',
+  'Cartier',
+  'Casio',
+  'Seiko',
+  'Other',
 ];
 
 const GENDERS: Gender[] = ['Men', 'Women', 'Unisex'];

@@ -16,6 +16,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { getOrderById, updateOrder, Order, OrderStatus, formatOrderDate } from '@/lib/db';
+import { COURIERS, COURIER_KEYS, Courier, getCourierTrackingUrl, courierLabel } from '@/lib/couriers';
 import { formatPrice } from '@/lib/utils';
 import StatusPill from '@/components/account/StatusPill';
 import OrderTimeline from '@/components/account/OrderTimeline';
@@ -39,6 +40,7 @@ export default function AdminOrderDetailPage() {
 
   // Editable fields
   const [status, setStatus] = useState<OrderStatus>('pending');
+  const [courier, setCourier] = useState<Courier>('other');
   const [trackingNumber, setTrackingNumber] = useState('');
 
   const [saving, setSaving] = useState(false);
@@ -52,6 +54,7 @@ export default function AdminOrderDetailPage() {
       setOrder(res);
       if (res) {
         setStatus(res.status);
+        setCourier((res.courier as Courier) ?? 'other');
         setTrackingNumber(res.trackingNumber ?? '');
       }
       setLoading(false);
@@ -60,7 +63,9 @@ export default function AdminOrderDetailPage() {
 
   const dirty =
     !!order &&
-    (status !== order.status || (trackingNumber || '') !== (order.trackingNumber || ''));
+    (status !== order.status ||
+      (trackingNumber || '') !== (order.trackingNumber || '') ||
+      (courier || 'other') !== (order.courier || 'other'));
 
   const handleSave = async () => {
     if (!order || !dirty) return;
@@ -70,9 +75,10 @@ export default function AdminOrderDetailPage() {
       const trimmed = trackingNumber.trim();
       await updateOrder(order.id!, {
         status,
+        courier,
         trackingNumber: trimmed,
       });
-      setOrder({ ...order, status, trackingNumber: trimmed });
+      setOrder({ ...order, status, courier, trackingNumber: trimmed });
       setSavedAt(Date.now());
     } catch (err: any) {
       setError(err?.message ?? 'Failed to save changes.');
@@ -80,6 +86,8 @@ export default function AdminOrderDetailPage() {
       setSaving(false);
     }
   };
+
+  const liveTrackingUrl = getCourierTrackingUrl(courier, trackingNumber);
 
   const advanceStatus = (next: OrderStatus) => {
     setStatus(next);
@@ -172,7 +180,7 @@ export default function AdminOrderDetailPage() {
 
         <OrderTimeline status={status} />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-2">
           {/* Status select */}
           <div>
             <label className="block text-[10px] uppercase tracking-[0.3em] text-[var(--muted)] mb-2">
@@ -191,6 +199,24 @@ export default function AdminOrderDetailPage() {
             </select>
           </div>
 
+          {/* Courier */}
+          <div>
+            <label className="block text-[10px] uppercase tracking-[0.3em] text-[var(--muted)] mb-2">
+              Courier
+            </label>
+            <select
+              value={courier}
+              onChange={(e) => setCourier(e.target.value as Courier)}
+              className="w-full bg-white border border-[var(--border)] px-4 py-3 text-sm text-[var(--foreground)] focus:outline-none focus:border-primary transition-colors cursor-pointer"
+            >
+              {COURIER_KEYS.map((k) => (
+                <option key={k} value={k}>
+                  {courierLabel(k)}
+                </option>
+              ))}
+            </select>
+          </div>
+
           {/* Tracking number */}
           <div>
             <label className="block text-[10px] uppercase tracking-[0.3em] text-[var(--muted)] mb-2">
@@ -199,14 +225,45 @@ export default function AdminOrderDetailPage() {
             <input
               value={trackingNumber}
               onChange={(e) => setTrackingNumber(e.target.value)}
-              placeholder="e.g. TCS-1234567"
+              placeholder={
+                courier === 'tcs'
+                  ? 'e.g. 5012345678'
+                  : courier === 'trax'
+                  ? 'e.g. TX0001234567'
+                  : courier === 'leopards'
+                  ? 'e.g. 12345678'
+                  : courier === 'mnp'
+                  ? 'e.g. 9876543210'
+                  : 'CN / AWB number'
+              }
               className="w-full bg-white border border-[var(--border)] px-4 py-3 text-sm text-[var(--foreground)] focus:outline-none focus:border-primary transition-colors"
             />
-            <p className="text-[10px] text-[var(--muted)] mt-2">
-              Visible to the customer on their order page and the public Track Order page.
-            </p>
           </div>
         </div>
+
+        {/* Live tracking link preview */}
+        {liveTrackingUrl ? (
+          <div className="bg-primary/[0.04] border border-primary/30 px-4 py-3 flex items-center justify-between gap-3 flex-wrap">
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.3em] text-primary">Tracking link active</p>
+              <p className="text-xs text-[var(--foreground)] mt-1">
+                Customer will see a {courierLabel(courier)} tracking button on their order page.
+              </p>
+            </div>
+            <a
+              href={liveTrackingUrl}
+              target="_blank"
+              rel="noopener"
+              className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-primary border border-primary px-4 py-2 hover:bg-primary hover:text-white transition-colors"
+            >
+              Open tracking <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+        ) : courier !== 'other' && trackingNumber ? (
+          <div className="bg-amber-50 border border-amber-200 text-amber-700 text-xs px-4 py-2.5">
+            Tracking number set, but couldn&apos;t build a link — check the courier selection.
+          </div>
+        ) : null}
 
         {/* Quick advance buttons */}
         <div className="flex flex-wrap gap-2 pt-2">

@@ -35,11 +35,11 @@ const SLIDES: Slide[] = [
     image:
       'https://images.unsplash.com/photo-1547996160-81dfa63595dd?q=80&w=2400&auto=format&fit=crop',
     piece: {
-      id: '4',
-      brand: 'Patek Philippe',
-      name: 'Nautilus Rose Gold',
-      price: 'PKR 4,200,000',
-      image: 'https://images.unsplash.com/photo-1612817288484-6f916006741a?q=80&w=600&auto=format&fit=crop',
+      id: '13',
+      brand: 'Seiko',
+      name: 'Prospex Turtle',
+      price: 'PKR 72,000',
+      image: 'https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?q=80&w=600&auto=format&fit=crop',
     },
   },
   {
