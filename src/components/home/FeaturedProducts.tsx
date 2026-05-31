@@ -40,7 +40,7 @@ const FeaturedProducts = () => {
   }, [products, activeTab]);
 
   return (
-    <section className="py-14 md:py-20 bg-[var(--soft)]">
+    <section className="py-10 md:py-14 bg-[var(--soft)]">
       <div className="container mx-auto px-6">
         <div className="text-center mb-8">
           <span className="eyebrow">Featured</span>

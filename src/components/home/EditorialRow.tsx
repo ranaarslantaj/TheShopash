@@ -27,7 +27,7 @@ const ARTICLES = [
 
 const EditorialRow = () => {
   return (
-    <section className="py-14 md:py-20 bg-[var(--soft)]">
+    <section className="py-10 md:py-14 bg-[var(--soft)]">
       <div className="container mx-auto px-6">
         <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-10">
           <div>

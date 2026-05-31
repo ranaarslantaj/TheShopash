@@ -18,7 +18,7 @@ const COLLECTIONS = [
 
 const ShopByGender = () => {
   return (
-    <section className="py-12 md:py-16 bg-[var(--soft)]">
+    <section className="py-8 md:py-12 bg-[var(--soft)]">
       <div className="container mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 auto-rows-[420px] md:auto-rows-[500px]">
           {COLLECTIONS.map((col, i) => (

@@ -15,10 +15,10 @@ export default function Home() {
     <main>
       <Navbar />
       <Hero />
-      <TrustStrip />
       <ShopByBrand />
       <ShopByGender />
       <FeaturedProducts />
+      <TrustStrip />
       <ShopByStyle />
       <StatsStrip />
       <EditorialRow />

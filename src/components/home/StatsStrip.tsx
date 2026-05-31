@@ -9,7 +9,7 @@ const STATS = [
 
 const StatsStrip = () => {
   return (
-    <section className="relative py-14 md:py-20 bg-[var(--foreground)] text-white overflow-hidden">
+    <section className="relative py-10 md:py-14 bg-[var(--foreground)] text-white overflow-hidden">
       {/* Background texture */}
       <div className="absolute inset-0 opacity-[0.08]">
         <img

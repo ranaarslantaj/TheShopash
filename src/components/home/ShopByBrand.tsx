@@ -64,7 +64,7 @@ const BRANDS: BrandTile[] = [
 
 const ShopByBrand = () => {
   return (
-    <section className="py-14 md:py-20 bg-white">
+    <section className="py-10 md:py-14 bg-white">
       <div className="container mx-auto px-6">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-8 md:mb-12">
