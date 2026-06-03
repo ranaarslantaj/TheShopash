@@ -28,6 +28,9 @@ if (isFirebaseConfigured) {
   app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
   db = getFirestore(app);
   storage = getStorage(app);
+  // Fail fast on network, permission or CORS issues (default is 10 minutes)
+  storage.maxUploadRetryTime = 5000; // 5 seconds
+  storage.maxOperationRetryTime = 5000; // 5 seconds
   auth = getAuth(app);
 
   // Analytics is browser-only and requires window APIs — initialize lazily client-side.

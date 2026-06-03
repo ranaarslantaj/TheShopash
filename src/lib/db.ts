@@ -577,25 +577,92 @@ export interface UploadedImage {
   path: string; // storage path, used for deletion
 }
 
+// Helper to compress and convert image files to Base64 data URLs on the client side
+const compressAndConvertToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target?.result as string;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+        
+        // Target reasonable sizes to keep under the 1MB Firestore doc limit
+        const MAX_WIDTH = 800;
+        const MAX_HEIGHT = 800;
+        
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          resolve(event.target?.result as string); // fallback to original data URL
+          return;
+        }
+        
+        ctx.drawImage(img, 0, 0, width, height);
+        // Compress to WebP at 70% quality to get tiny file sizes (typically 20-50KB)
+        const dataUrl = canvas.toDataURL('image/webp', 0.7);
+        resolve(dataUrl);
+      };
+      img.onerror = (err) => {
+        reject(err);
+      };
+    };
+    reader.onerror = (err) => {
+      reject(err);
+    };
+  });
+};
+
 export const uploadProductImage = async (
   productId: string,
   file: File
 ): Promise<UploadedImage> => {
   if (!storage) {
-    throw new Error(
-      'Firebase Storage is not configured. Enable Storage in your Firebase Console first.'
-    );
+    console.warn('[Storage] Firebase Storage not initialized. Using Base64 fallback.');
+    try {
+      const base64 = await compressAndConvertToBase64(file);
+      return { url: base64, path: 'base64' };
+    } catch (err: any) {
+      throw new Error('Failed to encode image: ' + (err?.message ?? err));
+    }
   }
+
   const ext = file.name.split('.').pop() || 'jpg';
   const path = `products/${productId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
   const ref = storageRef(storage, path);
-  await uploadBytes(ref, file, { contentType: file.type });
-  const url = await getDownloadURL(ref);
-  return { url, path };
+  try {
+    await uploadBytes(ref, file, { contentType: file.type });
+    const url = await getDownloadURL(ref);
+    return { url, path };
+  } catch (err: any) {
+    console.warn('[Storage] Firebase Storage failed (possibly needs plan upgrade/CORS setup). Falling back to client-side Base64 encoding.', err);
+    try {
+      const base64 = await compressAndConvertToBase64(file);
+      return { url: base64, path: 'base64' };
+    } catch (fallbackErr: any) {
+      throw new Error(err?.message ?? 'Image upload failed. Fallback also failed.');
+    }
+  }
 };
 
 export const deleteProductImage = async (urlOrPath: string): Promise<void> => {
-  if (!storage) return;
+  if (!storage || urlOrPath === 'base64' || urlOrPath.startsWith('data:')) return;
   try {
     // Accept either a full https URL (from getDownloadURL) or a storage path
     const ref = urlOrPath.startsWith('http')
