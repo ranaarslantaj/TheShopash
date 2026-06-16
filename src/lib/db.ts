@@ -25,6 +25,9 @@ import { db, storage, isFirebaseConfigured } from './firebase';
 import { MOCK_PRODUCTS } from './products';
 import { Product, WatchBrand, Gender } from '@/context/CartContext';
 
+const isClientOffline = (): boolean => typeof window !== 'undefined' && !navigator.onLine;
+const shouldUseMockData = (): boolean => !isFirebaseConfigured || !db || isClientOffline();
+
 export type OrderStatus =
   | 'pending'
   | 'confirmed'
@@ -73,7 +76,7 @@ const filterMock = (filters: ProductFilters): Product[] => {
 };
 
 export const getProducts = async (filters: ProductFilters = {}): Promise<Product[]> => {
-  if (!isFirebaseConfigured || !db) {
+  if (shouldUseMockData()) {
     return filterMock(filters);
   }
 
@@ -100,7 +103,7 @@ export const getProducts = async (filters: ProductFilters = {}): Promise<Product
 };
 
 export const getProductById = async (id: string): Promise<Product | null> => {
-  if (!isFirebaseConfigured || !db) {
+  if (shouldUseMockData()) {
     return MOCK_PRODUCTS.find((p) => p.id === id) ?? null;
   }
 
@@ -160,7 +163,7 @@ export const createOrder = async (
   orderData: Omit<Order, 'id' | 'createdAt' | 'status' | 'updatedAt'>
 ): Promise<string> => {
   // ─── Offline fallback (no Firebase) ──────────────────────────
-  if (!isFirebaseConfigured || !db) {
+  if (shouldUseMockData()) {
     const next = readLocalCounter() + 1;
     writeLocalCounter(next);
     const id = formatOrderId(next);
@@ -222,7 +225,7 @@ export const createOrder = async (
 };
 
 export const getOrderById = async (id: string): Promise<Order | null> => {
-  if (!isFirebaseConfigured || !db) {
+  if (shouldUseMockData()) {
     return readGuestOrders().find((o) => o.id === id) ?? null;
   }
   try {
@@ -239,7 +242,7 @@ export const getOrderById = async (id: string): Promise<Order | null> => {
 };
 
 export const getOrdersByUserId = async (userId: string): Promise<Order[]> => {
-  if (!isFirebaseConfigured || !db) {
+  if (shouldUseMockData()) {
     return readGuestOrders().filter((o) => o.userId === userId);
   }
   try {
@@ -263,7 +266,7 @@ export interface OrderFilters {
 }
 
 export const getAllOrders = async (filters: OrderFilters = {}): Promise<Order[]> => {
-  if (!isFirebaseConfigured || !db) {
+  if (shouldUseMockData()) {
     let mock = readGuestOrders();
     if (filters.status) mock = mock.filter((o) => o.status === filters.status);
     if (filters.search) {
@@ -392,7 +395,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
 };
 
 export const getSiteSettings = async (): Promise<SiteSettings> => {
-  if (!isFirebaseConfigured || !db) return DEFAULT_SETTINGS;
+  if (shouldUseMockData()) return DEFAULT_SETTINGS;
   try {
     const snap = await getDoc(doc(db, 'settings', 'site'));
     if (!snap.exists()) return DEFAULT_SETTINGS;
@@ -479,7 +482,7 @@ export const ensureUserDoc = async (params: {
 };
 
 export const getAllCustomers = async (): Promise<Customer[]> => {
-  if (!isFirebaseConfigured || !db) return [];
+  if (shouldUseMockData()) return [];
   try {
     const snap = await getDocs(query(collection(db, 'users'), orderBy('createdAt', 'desc')));
     return snap.docs
@@ -500,7 +503,7 @@ export const getAllCustomers = async (): Promise<Customer[]> => {
 };
 
 export const getCustomerById = async (uid: string): Promise<Customer | null> => {
-  if (!isFirebaseConfigured || !db) return null;
+  if (shouldUseMockData()) return null;
   try {
     const snap = await getDoc(doc(db, 'users', uid));
     if (!snap.exists()) return null;

@@ -64,95 +64,54 @@ const BRANDS: BrandTile[] = [
 
 const ShopByBrand = () => {
   return (
-    <section className="py-10 md:py-14 bg-white">
+    <section className="py-14 bg-[radial-gradient(circle_at_top_left,_rgba(245,245,245,0.9),transparent_42%),#f8f8f8]">
       <div className="container mx-auto px-6">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-8 md:mb-12">
-          <div>
-            <span className="eyebrow">The Maisons</span>
-            <h2
-              className="font-serif text-[var(--foreground)] mt-2"
-              style={{ fontSize: 'clamp(1.75rem, 3vw, 2.5rem)' }}
-            >
-              Shop by Brand
-            </h2>
-          </div>
-          <p className="text-sm text-[var(--muted)] max-w-sm">
-            Seven houses, one curated catalogue.
-          </p>
-        </div>
-
-        {/* 4×2 grid: 7 brand tiles + 1 catalogue CTA */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
-          {BRANDS.map((b) => (
-            <Link
-              key={b.name}
-              href={b.href}
-              className="group relative aspect-square overflow-hidden bg-[var(--soft)]"
-            >
-              {/* Image */}
-              <img
-                src={b.image}
-                alt={b.name}
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.06]"
-              />
-
-              {/* Dark gradient overlay — top to bottom, lifts on hover */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/30 transition-opacity duration-500 group-hover:opacity-90" />
-
-              {/* Faint monogram (only visible on hover) */}
-              {b.monogram && (
-                <span
-                  className="absolute inset-0 flex items-center justify-center font-serif text-white/0 group-hover:text-white/[0.06] transition-colors duration-700 pointer-events-none select-none"
-                  style={{ fontSize: 'clamp(6rem, 14vw, 12rem)', fontWeight: 300, letterSpacing: '0.05em' }}
-                >
-                  {b.monogram}
-                </span>
-              )}
-
-              {/* Content */}
-              <div className="absolute inset-x-0 bottom-0 p-5 md:p-6 text-white">
-                <h3
-                  className="font-serif leading-none tracking-tight"
-                  style={{ fontSize: 'clamp(1.5rem, 2.6vw, 2.25rem)', fontWeight: 300 }}
-                >
-                  {b.name}
-                </h3>
-
-                {/* Animated underline + label */}
-                <div className="flex items-center gap-3 mt-3 md:mt-4">
-                  <span className="block h-px w-6 bg-primary transition-all duration-500 group-hover:w-12" />
-                  <span className="text-[9px] md:text-[10px] uppercase tracking-[0.4em] opacity-80 group-hover:opacity-100 transition-opacity">
-                    Explore
-                  </span>
-                </div>
-              </div>
-            </Link>
-          ))}
-
-          {/* 8th tile: full-catalogue CTA — pure typographic, no image */}
-          <Link
-            href="/shop"
-            className="group relative aspect-square overflow-hidden bg-[var(--foreground)] text-white flex flex-col items-center justify-center text-center p-6"
+        <div className="mb-10 lg:mb-14">
+          <h2
+            className="font-serif text-[var(--foreground)] text-[2.75rem] sm:text-[3rem] md:text-[3.5rem] leading-tight font-semibold"
           >
-            <span className="text-[10px] uppercase tracking-[0.5em] text-primary mb-3">
-              All Timepieces
-            </span>
-            <h3
-              className="font-serif leading-tight tracking-tight"
-              style={{ fontSize: 'clamp(1.25rem, 2vw, 1.75rem)', fontWeight: 300 }}
-            >
-              View Full
-              <br />
-              Catalogue
-            </h3>
-            <div className="flex items-center gap-2 mt-5 text-[10px] uppercase tracking-[0.4em] text-white/80">
-              <span>Browse</span>
-              <ArrowRight className="w-3.5 h-3.5 transition-transform duration-500 group-hover:translate-x-1" />
-            </div>
-            <span className="absolute inset-0 ring-1 ring-inset ring-primary/0 group-hover:ring-primary/40 transition-colors duration-500" />
-          </Link>
+            Shop by Brand
+          </h2>
         </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          <Link
+            href="/shop?brand=Rolex"
+            className="relative col-span-1 lg:col-span-5 overflow-hidden rounded-[2rem] shadow-[0_30px_80px_rgba(0,0,0,0.24)] group"
+          >
+            <img
+              src={BRANDS[0].image}
+              alt="Rolex"
+              className="h-[420px] w-full object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+            <div className="absolute bottom-6 left-6 text-white">
+              <h3 className="font-serif text-[2.6rem] leading-none">Rolex</h3>
+            </div>
+          </Link>
+
+          <div className="col-span-1 lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {BRANDS.slice(1).map((brand) => (
+              <Link
+                key={brand.name}
+                href={brand.href}
+                className="relative overflow-hidden rounded-[1.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.16)] group"
+              >
+                <img
+                  src={brand.image}
+                  alt={brand.name}
+                  className="h-[210px] w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                <div className="absolute bottom-5 left-5 text-white">
+                  <p className="text-[11px] uppercase tracking-[0.4em] text-white/60 mb-2">{brand.monogram}</p>
+                  <h3 className="font-serif text-2xl leading-tight">{brand.name}</h3>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+
       </div>
     </section>
   );

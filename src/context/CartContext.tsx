@@ -18,6 +18,7 @@ export interface Product {
   id: string;
   title: string;
   pricePKR: number;
+  salePricePKR?: number;
   priceUSD: number;
   description: string;
   images: string[];

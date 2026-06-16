@@ -3,6 +3,7 @@ import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
+import { WishlistProvider } from "@/context/WishlistContext";
 import CartDrawer from "@/components/cart/CartDrawer";
 
 const inter = Inter({ 
@@ -39,8 +40,10 @@ export default function RootLayout({
       <body className={`${inter.variable} ${playfair.variable} antialiased bg-[var(--background)] text-[var(--foreground)]`} suppressHydrationWarning>
         <AuthProvider>
           <CartProvider>
-            {children}
-            <CartDrawer />
+            <WishlistProvider>
+              {children}
+              <CartDrawer />
+            </WishlistProvider>
           </CartProvider>
         </AuthProvider>
       </body>

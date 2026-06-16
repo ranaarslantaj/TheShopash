@@ -21,6 +21,8 @@ export default function ProductDetailPage() {
   const [related, setRelated] = React.useState<Product[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [imgIdx, setImgIdx] = React.useState(0);
+  const [lightboxOpen, setLightboxOpen] = React.useState(false);
+  const [lightboxIdx, setLightboxIdx] = React.useState(0);
 
   React.useEffect(() => {
     const fetchProductAndRelated = async () => {
@@ -117,47 +119,133 @@ export default function ProductDetailPage() {
                 )}
               </div>
               <div className="flex gap-3">
-                {product.images.map((img, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setImgIdx(i)}
-                    className={`w-20 h-20 overflow-hidden border-2 transition-colors ${
-                      i === imgIdx ? 'border-primary' : 'border-[var(--border)]'
-                    }`}
-                  >
-                    <img src={img} alt="" className="w-full h-full object-cover" />
-                  </button>
-                ))}
+                {(() => {
+                  const previewCount = 3;
+                  const previews = product.images.slice(0, previewCount);
+                  const extra = Math.max(0, product.images.length - previewCount);
+                  return (
+                    <>
+                      {previews.map((img, i) => (
+                        <button
+                          key={i}
+                          onClick={() => {
+                            setImgIdx(i);
+                            setLightboxIdx(i);
+                            setLightboxOpen(true);
+                          }}
+                          className={`w-20 h-20 overflow-hidden border-2 transition-colors ${
+                            i === imgIdx ? 'border-primary' : 'border-[var(--border)]'
+                          }`}
+                        >
+                          <img src={img} alt="" className="w-full h-full object-cover" />
+                        </button>
+                      ))}
+
+                      {extra > 0 && (
+                        <button
+                          onClick={() => {
+                            // open lightbox at the next image index
+                            setImgIdx(previewCount);
+                            setLightboxIdx(previewCount);
+                            setLightboxOpen(true);
+                          }}
+                          className="w-20 h-20 flex items-center justify-center border-2 border-[var(--border)] bg-[var(--soft)] text-[var(--muted)] font-medium"
+                        >
+                          +{extra}
+                        </button>
+                      )}
+                    </>
+                  );
+                })()}
               </div>
+
+              {/* Lightbox */}
+              {lightboxOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-6">
+                  <div className="max-w-4xl w-full">
+                    <div className="relative bg-black">
+                      <button
+                        onClick={() => setLightboxOpen(false)}
+                        className="absolute right-3 top-3 z-20 p-2 text-white bg-black/40 rounded"
+                        aria-label="Close"
+                      >
+                        ✕
+                      </button>
+                      <button
+                        onClick={() => setLightboxIdx((i) => (i - 1 + product.images.length) % product.images.length)}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 z-20 p-2 text-white bg-black/40 rounded"
+                        aria-label="Previous"
+                      >
+                        ‹
+                      </button>
+                      <button
+                        onClick={() => setLightboxIdx((i) => (i + 1) % product.images.length)}
+                        className="absolute right-12 top-1/2 -translate-y-1/2 z-20 p-2 text-white bg-black/40 rounded"
+                        aria-label="Next"
+                      >
+                        ›
+                      </button>
+                      <img src={product.images[lightboxIdx]} alt="" className="w-full h-[70vh] object-contain mx-auto" />
+                    </div>
+                    <div className="mt-4 flex gap-2 justify-center">
+                      {product.images.map((img, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setLightboxIdx(i)}
+                          className={`w-16 h-16 overflow-hidden border-2 ${i === lightboxIdx ? 'border-primary' : 'border-[var(--border)]'}`}
+                        >
+                          <img src={img} alt="" className="w-full h-full object-cover" />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Product Info */}
             <div className="space-y-8">
-              <div>
-                <div className="flex flex-wrap gap-3 mb-4">
-                  <Link
-                    href={`/shop?brand=${encodeURIComponent(product.brand)}`}
-                    className="text-[10px] uppercase tracking-[0.3em] text-primary border border-primary/30 px-3 py-1 hover:bg-primary/10 transition-colors"
-                  >
-                    {product.brand}
-                  </Link>
-                  <Link
-                    href={`/shop?gender=${product.gender}`}
-                    className="text-[10px] uppercase tracking-[0.3em] text-[var(--foreground)]/70 border border-[var(--border)] px-3 py-1 hover:border-[var(--foreground)]/50 transition-colors"
-                  >
-                    {product.gender}
-                  </Link>
+              <div className="space-y-6">
+                <div className="flex flex-wrap gap-3 mb-2">
+                  <span className="pill bg-primary text-white">Brand: {product.brand}</span>
+                  <span className="pill border border-[var(--border)] text-[var(--foreground)]">Gender: {product.gender}</span>
+                  <span className="pill border border-[var(--border)] text-[var(--foreground)]">Style: {product.style}</span>
                 </div>
-                <h1 className="text-4xl md:text-5xl font-serif text-[var(--foreground)] mb-4">{product.title}</h1>
-                <div className="flex items-baseline gap-4">
-                  <p className="text-3xl text-primary font-light">{formatPrice(product.pricePKR, 'PKR')}</p>
-                  <p className="text-[var(--muted)] text-sm">≈ {formatPrice(product.priceUSD, 'USD')}</p>
+                <div>
+                  <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif text-[var(--foreground)] tracking-tight leading-tight">
+                    {product.title}
+                  </h1>
+                  {product.reference && (
+                    <p className="mt-3 text-sm uppercase tracking-[0.45em] text-[var(--muted)]">
+                      Ref. {product.reference}
+                    </p>
+                  )}
+                </div>
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-wrap items-center gap-4">
+                    {product.salePricePKR && product.salePricePKR < product.pricePKR ? (
+                      <>
+                        <p className="text-5xl md:text-6xl font-semibold luxury-text-gradient">
+                          {formatPrice(product.salePricePKR, 'PKR')}
+                        </p>
+                        <p className="text-base text-[var(--muted)] line-through">{formatPrice(product.pricePKR, 'PKR')}</p>
+                      </>
+                    ) : (
+                      <p className="text-5xl md:text-6xl font-semibold luxury-text-gradient">
+                        {formatPrice(product.pricePKR, 'PKR')}
+                      </p>
+                    )}
+                    <span className={`text-xs uppercase tracking-[0.4em] font-medium ${
+                      product.stock > 0 ? 'text-primary' : 'text-red-600'
+                    }`}>
+                      {product.stock > 0 ? 'In stock' : 'Out of stock'}
+                    </span>
+                  </div>
+                  <div className="h-px bg-primary w-24" />
                 </div>
               </div>
-              <div className="h-px bg-[var(--border)]" />
-              <p className="text-[var(--foreground)]/75 leading-relaxed font-light text-lg">{product.description}</p>
-              <p className="text-xs uppercase tracking-widest text-[var(--muted)]">
-                {product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
+              <p className="text-xl md:text-2xl text-[var(--foreground)]/85 leading-relaxed max-w-2xl">
+                {product.description}
               </p>
 
               {/* Action Buttons */}

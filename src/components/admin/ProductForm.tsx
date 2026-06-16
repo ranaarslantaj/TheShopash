@@ -36,6 +36,7 @@ export interface ProductFormValues {
   gender: Gender;
   style: WatchStyle;
   pricePKR: number | '';
+  salePricePKR: number | '';
   priceUSD: number | '';
   stock: number | '';
   description: string;
@@ -50,6 +51,7 @@ const emptyForm: ProductFormValues = {
   gender: 'Men',
   style: 'Dress',
   pricePKR: '',
+  salePricePKR: '',
   priceUSD: '',
   stock: 1,
   description: '',
@@ -80,6 +82,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
           gender: (initialValues.gender as Gender) ?? 'Men',
           style: (initialValues.style as WatchStyle) ?? 'Dress',
           pricePKR: initialValues.pricePKR ?? '',
+          salePricePKR: initialValues.salePricePKR ?? '',
           priceUSD: initialValues.priceUSD ?? '',
           stock: initialValues.stock ?? 1,
           description: initialValues.description ?? '',
@@ -95,7 +98,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
     const e: Partial<Record<keyof ProductFormValues, string>> = {};
     if (!values.title.trim()) e.title = 'Required';
     if (values.pricePKR === '' || Number(values.pricePKR) <= 0) e.pricePKR = 'Required';
-    if (values.priceUSD === '' || Number(values.priceUSD) <= 0) e.priceUSD = 'Required';
+    if (values.salePricePKR !== '' && Number(values.salePricePKR) <= 0) e.salePricePKR = 'Required';
     if (values.stock === '' || Number(values.stock) < 0) e.stock = 'Required';
     if (!values.description.trim()) e.description = 'Required';
     if (values.images.length === 0) e.images = 'At least one image required';
@@ -131,6 +134,8 @@ const ProductForm: React.FC<ProductFormProps> = ({
         gender: values.gender,
         style: values.style,
         pricePKR: Number(values.pricePKR),
+        salePricePKR:
+          values.salePricePKR === '' ? undefined : Number(values.salePricePKR),
         priceUSD: Number(values.priceUSD),
         stock: Number(values.stock),
         description: values.description.trim(),
@@ -249,7 +254,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           <div>
-            <label className={labelClass}>Price (PKR) *</label>
+            <label className={labelClass}>Regular price (PKR) *</label>
             <input
               type="number"
               min="0"
@@ -262,17 +267,17 @@ const ProductForm: React.FC<ProductFormProps> = ({
             {errors.pricePKR && <p className={errClass}>{errors.pricePKR}</p>}
           </div>
           <div>
-            <label className={labelClass}>Price (USD) *</label>
+            <label className={labelClass}>Sale price (PKR)</label>
             <input
               type="number"
               min="0"
               step="1"
-              value={values.priceUSD}
-              onChange={(e) => update('priceUSD', e.target.value === '' ? '' : Number(e.target.value))}
+              value={values.salePricePKR}
+              onChange={(e) => update('salePricePKR', e.target.value === '' ? '' : Number(e.target.value))}
               className={inputClass}
-              placeholder="4500"
+              placeholder="950000"
             />
-            {errors.priceUSD && <p className={errClass}>{errors.priceUSD}</p>}
+            {errors.salePricePKR && <p className={errClass}>{errors.salePricePKR}</p>}
           </div>
           <div>
             <label className={labelClass}>Stock *</label>

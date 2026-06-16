@@ -10,12 +10,9 @@ import { createOrder } from '@/lib/db';
 import { CheckCircle, Loader2, Copy } from 'lucide-react';
 import Link from 'next/link';
 
-type Mode = 'choose' | 'form';
-
 export default function CheckoutPage() {
   const { cart, totalPricePKR, totalPriceUSD, clearCart } = useCart();
   const { user } = useAuth();
-  const [mode, setMode] = useState<Mode>(user ? 'form' : 'choose');
   const [orderId, setOrderId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -31,7 +28,6 @@ export default function CheckoutPage() {
   // Auto-fill from auth on mount
   useEffect(() => {
     if (user) {
-      setMode('form');
       setForm((f) => ({
         ...f,
         name: f.name || user.displayName || '',
@@ -158,69 +154,6 @@ export default function CheckoutPage() {
             <Link href="/shop" className="inline-block bg-[var(--foreground)] text-white px-8 py-3 text-xs uppercase tracking-[0.3em] hover:bg-primary transition-colors mt-6">
               Shop Now
             </Link>
-          </div>
-        </section>
-        <Footer />
-      </main>
-    );
-  }
-
-  // Guest/sign-in chooser (only shown to non-authenticated users)
-  if (mode === 'choose') {
-    return (
-      <main>
-        <Navbar />
-        <section className="pt-16 pb-20 bg-[var(--background)] min-h-screen">
-          <div className="container mx-auto px-6 max-w-3xl">
-            <div className="text-center mb-12">
-              <span className="eyebrow">One last step</span>
-              <h1 className="text-4xl md:text-5xl font-serif text-[var(--foreground)] mt-4">Checkout</h1>
-              <p className="text-sm text-[var(--muted)] mt-3 font-light">
-                Sign in for a faster checkout, or continue as a guest. Either way, you&apos;ll get an order number to track.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <Link
-                href={`/account/login?next=/checkout`}
-                className="block bg-white border border-[var(--border)] p-8 hover:border-primary transition-colors group"
-              >
-                <span className="eyebrow">Returning Customer</span>
-                <h2 className="font-serif text-2xl text-[var(--foreground)] mt-3 mb-3 group-hover:text-primary transition-colors">
-                  Sign In
-                </h2>
-                <p className="text-sm text-[var(--muted)] font-light leading-relaxed mb-6">
-                  Skip filling in your details. Saved addresses, faster checkout, and order history kept in one place.
-                </p>
-                <span className="text-[10px] uppercase tracking-[0.3em] text-primary border-b border-primary pb-1">
-                  Continue with Sign In →
-                </span>
-              </Link>
-
-              <button
-                onClick={() => setMode('form')}
-                className="block bg-white border border-[var(--border)] p-8 hover:border-primary transition-colors group text-left"
-              >
-                <span className="eyebrow">No Account Needed</span>
-                <h2 className="font-serif text-2xl text-[var(--foreground)] mt-3 mb-3 group-hover:text-primary transition-colors">
-                  Continue as Guest
-                </h2>
-                <p className="text-sm text-[var(--muted)] font-light leading-relaxed mb-6">
-                  Order without creating an account. We&apos;ll email you an order number you can use to track delivery anytime.
-                </p>
-                <span className="text-[10px] uppercase tracking-[0.3em] text-primary border-b border-primary pb-1">
-                  Guest Checkout →
-                </span>
-              </button>
-            </div>
-
-            <p className="text-center text-xs text-[var(--muted)] mt-10">
-              New here?{' '}
-              <Link href="/account/signup?next=/checkout" className="text-primary underline-offset-4 hover:underline">
-                Create an account
-              </Link>{' '}
-              to save your details for next time.
-            </p>
           </div>
         </section>
         <Footer />
