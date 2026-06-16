@@ -81,7 +81,7 @@ export const getProducts = async (filters: ProductFilters = {}): Promise<Product
   }
 
   try {
-    const productsRef = collection(db, 'products');
+    const productsRef = collection(db!, 'products');
     const constraints: QueryConstraint[] = [];
 
     if (filters.brand) constraints.push(where('brand', '==', filters.brand));
@@ -108,7 +108,7 @@ export const getProductById = async (id: string): Promise<Product | null> => {
   }
 
   try {
-    const docRef = doc(db, 'products', id);
+    const docRef = doc(db!, 'products', id);
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
@@ -183,8 +183,8 @@ export const createOrder = async (
   // with id `SA00001` etc. — all in one atomic operation. Guarantees no
   // duplicate IDs even with concurrent checkouts.
   try {
-    const counterRef = doc(db, 'meta', 'orderCounter');
-    const orderId = await runTransaction(db, async (tx) => {
+    const counterRef = doc(db!, 'meta', 'orderCounter');
+    const orderId = await runTransaction(db!, async (tx) => {
       const counterSnap = await tx.get(counterRef);
       const current = counterSnap.exists() ? (counterSnap.data().value ?? 0) : 0;
       const next = current + 1;
@@ -229,7 +229,7 @@ export const getOrderById = async (id: string): Promise<Order | null> => {
     return readGuestOrders().find((o) => o.id === id) ?? null;
   }
   try {
-    const docRef = doc(db, 'orders', id);
+    const docRef = doc(db!, 'orders', id);
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
       return { id: docSnap.id, ...docSnap.data() } as Order;
@@ -247,7 +247,7 @@ export const getOrdersByUserId = async (userId: string): Promise<Order[]> => {
   }
   try {
     const q = query(
-      collection(db, 'orders'),
+      collection(db!, 'orders'),
       where('userId', '==', userId),
       orderBy('createdAt', 'desc')
     );
@@ -285,7 +285,7 @@ export const getAllOrders = async (filters: OrderFilters = {}): Promise<Order[]>
     const constraints: QueryConstraint[] = [];
     if (filters.status) constraints.push(where('status', '==', filters.status));
     constraints.push(orderBy('createdAt', 'desc'));
-    const snap = await getDocs(query(collection(db, 'orders'), ...constraints));
+    const snap = await getDocs(query(collection(db!, 'orders'), ...constraints));
     let results = snap.docs
       .filter((d) => d.id !== '_schema')
       .map((d) => ({ id: d.id, ...d.data() })) as Order[];
@@ -324,7 +324,7 @@ export const updateOrder = async (
     return;
   }
   try {
-    const ref = doc(db, 'orders', orderId);
+    const ref = doc(db!, 'orders', orderId);
 
     // Read previous state so we can detect status transitions for emails
     const previousSnap = await getDoc(ref);
@@ -397,7 +397,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
 export const getSiteSettings = async (): Promise<SiteSettings> => {
   if (shouldUseMockData()) return DEFAULT_SETTINGS;
   try {
-    const snap = await getDoc(doc(db, 'settings', 'site'));
+    const snap = await getDoc(doc(db!, 'settings', 'site'));
     if (!snap.exists()) return DEFAULT_SETTINGS;
     return { ...DEFAULT_SETTINGS, ...(snap.data() as Partial<SiteSettings>) };
   } catch (error) {
@@ -414,7 +414,7 @@ export const updateSiteSettings = async (updates: Partial<SiteSettings>): Promis
     Object.entries(updates).filter(([, v]) => v !== undefined)
   );
   await setDoc(
-    doc(db, 'settings', 'site'),
+    doc(db!, 'settings', 'site'),
     { ...cleaned, updatedAt: serverTimestamp() },
     { merge: true }
   );
@@ -447,7 +447,7 @@ export const ensureUserDoc = async (params: {
   phone?: string | null;
 }): Promise<void> => {
   if (!isFirebaseConfigured || !db) return;
-  const ref = doc(db, 'users', params.uid);
+  const ref = doc(db!, 'users', params.uid);
   try {
     const snap = await getDoc(ref);
     if (snap.exists()) {
@@ -484,7 +484,7 @@ export const ensureUserDoc = async (params: {
 export const getAllCustomers = async (): Promise<Customer[]> => {
   if (shouldUseMockData()) return [];
   try {
-    const snap = await getDocs(query(collection(db, 'users'), orderBy('createdAt', 'desc')));
+    const snap = await getDocs(query(collection(db!, 'users'), orderBy('createdAt', 'desc')));
     return snap.docs
       .filter((d) => d.id !== '_schema' && !d.data()?._placeholder)
       .map((d) => ({ id: d.id, ...d.data() })) as Customer[];
@@ -505,7 +505,7 @@ export const getAllCustomers = async (): Promise<Customer[]> => {
 export const getCustomerById = async (uid: string): Promise<Customer | null> => {
   if (shouldUseMockData()) return null;
   try {
-    const snap = await getDoc(doc(db, 'users', uid));
+    const snap = await getDoc(doc(db!, 'users', uid));
     if (!snap.exists()) return null;
     return { id: snap.id, ...snap.data() } as Customer;
   } catch (error) {
